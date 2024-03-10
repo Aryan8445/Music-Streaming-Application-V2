@@ -1,10 +1,10 @@
 from app.extensions import db
-from flask_login import UserMixin
+# from flask_login import UserMixin
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 
-class User(db.Model, UserMixin):
+class User(db.Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -13,13 +13,16 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     user_type = db.Column(db.String(80), nullable=False)
-    # fs_uniquifier = db.column(db.String(255), unique=True, nullable=False)
     is_blacklisted = db.Column(db.Boolean, default=False)
-    registration_date = db.Column(
-        db.DateTime(timezone=True), default=func.now())
+    # registration_date = db.Column(
+    #     db.DateTime(timezone=True), default=func.now())
     songs = relationship('Song', back_populates='artist', lazy=True)
     albums = relationship('Album', back_populates='artist', lazy=True)
     ratings = relationship('Rating', back_populates='user', lazy=True)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
     
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
@@ -44,6 +47,10 @@ class Song(db.Model):
     album = db.relationship('Album',secondary='album_songs', back_populates='songs', lazy=True)
     artist = db.relationship('User', back_populates='songs', lazy=True)
     is_flagged = db.Column(db.Boolean, default=False)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 class Playlist(db.Model):
     __tablename__ = 'playlist'
