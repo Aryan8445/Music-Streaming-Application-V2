@@ -1,5 +1,4 @@
 from app.extensions import db
-# from flask_login import UserMixin
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
