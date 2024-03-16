@@ -24,9 +24,10 @@ def create_app():
     jwt = JWTManager(app)
 
     from .auth import auth
-
+    from .controllers import controllers
     app.register_blueprint(auth, url_prefix='/')
-
+    app.register_blueprint(controllers, url_prefix='/')
+    
     app.app_context().push()
 
     if not path.exists('instance/' + DATABASE_NAME):
@@ -34,6 +35,8 @@ def create_app():
             db.create_all()
     
     setup_initial_data()
+
+    
     return app
 
 
