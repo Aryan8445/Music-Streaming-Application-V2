@@ -1,7 +1,7 @@
 from os import path
 from flask import Flask
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager
 
 
 from app.config import Config
@@ -22,10 +22,9 @@ def create_app():
     api.init_app(app)
     # print("Creating Database")
     jwt = JWTManager(app)
-    from .controllers import controllers
+
     from .auth import auth
 
-    app.register_blueprint(controllers, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
     app.app_context().push()

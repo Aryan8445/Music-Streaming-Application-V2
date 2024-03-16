@@ -20,14 +20,14 @@ def get_all_users():
     users = User.query.all()
     return users
 
-@cache.memoize()
-def get_user_username(username):
-    user = User.query.filter_by(username=username).first()
+
+def find_user(email):
+    user = User.query.filter_by(email=email).first()
     return user
 
-@cache.memoize()
-def get_user_id(id):
-    user = User.query.filter_by(id==id).first()
+
+def find_admin(email):
+    user = Admin.query.filter_by(email=email).first()
     return user
 
 @cache.memoize()
@@ -36,7 +36,7 @@ def get_songs_all():
     return songs
 
 @cache.memoize()
-def get_song_by_id(id):
+def find_song_by_id(id):
     song = Song.query.filter_by(id == id).first()
     return song
 

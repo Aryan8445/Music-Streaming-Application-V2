@@ -45,8 +45,8 @@ def signup():
     hashed_password = generate_password_hash(password1)
 
     # Create new user
-    new_user = User(email=email, firstname=firstname, lastname=lastname, password=hashed_password, user_type = 'user')
-    new_user.save()  
+    new_user = User(email=email, firstname=firstname, lastname=lastname, password=hashed_password, user_type='user')
+    new_user.save()
 
     # Generate access token
     access_token = create_access_token(identity=email)
@@ -54,8 +54,6 @@ def signup():
     return jsonify({'message': 'User created successfully', 'access_token': access_token}), 201
 
 # Other authentication/authorization routes and functions can be added as needed
-
-
 
 @jwt_required()
 @auth.route('/protected', methods=['GET'])
@@ -67,5 +65,3 @@ def protected():
 @auth.route('/logout', methods=['POST'])
 def logout():
     return jsonify({'message': 'Successfully logged out'}), 200
-
-# Other authentication/authorization routes and functions can be added as needed
