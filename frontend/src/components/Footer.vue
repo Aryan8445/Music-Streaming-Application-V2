@@ -8,6 +8,7 @@
   
   <script>
   export default {
+    /* eslint-disable */ 
     name: 'Footer'
   };
   </script>
