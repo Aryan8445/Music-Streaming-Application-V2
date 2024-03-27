@@ -46,10 +46,7 @@ class Song(db.Model):
     album = db.relationship('Album',secondary='album_songs', back_populates='songs', lazy=True)
     artist = db.relationship('User', back_populates='songs', lazy=True)
     is_flagged = db.Column(db.Boolean, default=False)
-
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
+    
 
 class Playlist(db.Model):
     __tablename__ = 'playlist'

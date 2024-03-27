@@ -1,13 +1,12 @@
 <template>
-    <div class="user-profile">
-        <h1>{{ user.name }}</h1>
-        <p>{{ user.email }}</p>
-        <p>{{ user.bio }}</p>
-        <img :src="user.avatar" alt="User Avatar" />
+    <div>
+        <UserProfile @userprofile="UserProfile"></UserProfile>
     </div>
 </template>
 
 <script>
+/* eslint-disable */
+import UserProfile from '@/components/Auth/UserProfile.vue';
 export default {
     data() {
         return {
@@ -18,6 +17,9 @@ export default {
                 avatar: 'https://example.com/avatar.jpg'
             }
         };
+    },
+    components: {
+          UserProfile  
     }
 };
 </script>

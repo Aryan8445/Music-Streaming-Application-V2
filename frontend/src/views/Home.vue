@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Welcome to Music Streaming App</h1>
+    <h1>Welcome from Home</h1>
   </div>
 </template>
 

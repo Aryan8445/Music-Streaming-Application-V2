@@ -7,7 +7,8 @@ from flask_jwt_extended import JWTManager
 from app.config import Config
 from app.extensions import db, DATABASE_NAME
 from app.setup_initial_data import setup_initial_data
-from app.api import api
+
+
 
 
 def create_app():
@@ -19,14 +20,16 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_NAME}'
 
     db.init_app(app)
-    api.init_app(app)
+    
     # print("Creating Database")
     jwt = JWTManager(app)
 
     from .auth import auth
     from .controllers import controllers
+    from .api.songs import api_bp
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(controllers, url_prefix='/')
+    app.register_blueprint(api_bp, url_prefix='/api')
     
     app.app_context().push()
 

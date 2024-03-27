@@ -5,10 +5,16 @@ import Signup from '../views/Signup.vue';
 import UserProfile from '../views/UserProfile.vue';
 import CreatorProfile from '../views/CreatorDashboard.vue';
 import AdminDashboard from '../views/AdminDashboard.vue';
+import LandingPage from '../views/LandingPage.vue';
 
 const routes = [
   {
     path: '/',
+    name: 'LandingPage',
+    component: LandingPage,
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: Home,
   },
