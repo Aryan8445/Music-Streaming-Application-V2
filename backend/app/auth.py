@@ -38,7 +38,8 @@ def signup():
 
     # Check if email already exists
     existing_user = User.query.filter_by(email=email).first()
-    if existing_user:
+    existing_admin = Admin.query.filter_by(email=email).first()
+    if existing_user or existing_admin:
         return jsonify({'message': 'Email already exists'}), 400
 
     # Hash the password

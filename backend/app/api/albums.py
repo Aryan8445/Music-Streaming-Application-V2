@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import jsonify, Blueprint, request
 from flask_restful import Resource, Api, reqparse, fields, marshal_with
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
@@ -23,26 +23,32 @@ album_fields = {
     }))
 }
 
+
 def creator_or_admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         current_user_email = get_jwt_identity()
         current_user = User.query.filter_by(email=current_user_email).first()
-        if current_user.user_type == "creator" or Admin.query.filter_by(email = current_user_email).first():
+        admin = Admin.query.filter_by(email=current_user_email).first()
+
+        if current_user and current_user.user_type == "creator":
+            return fn(*args, **kwargs)
+        elif admin:
             return fn(*args, **kwargs)
         else:
             return jsonify({'message': 'Unauthorized'}), 401
+
     return wrapper
+
 
 class AlbumListResource(Resource):
     @jwt_required()
     @marshal_with(album_fields)
     def get(self):
         try:
-            current_user_email = get_jwt_identity()
-            current_user = User.query.filter_by(email=current_user_email).first()
-            albums = Album.query.filter_by(artist_id=current_user.id).all()
+            albums = Album.query.all()
             return albums
+
         except SQLAlchemyError:
             return jsonify({'message': 'An error occurred while fetching albums'}), 500
 
@@ -56,7 +62,10 @@ class AlbumListResource(Resource):
             song_ids = data.get('song_ids', [])
 
             current_user_email = get_jwt_identity()
-            current_user = User.query.filter_by(email=current_user_email).first()
+            current_user = User.query.filter_by(
+                email=current_user_email).first()
+            if not current_user:
+                return jsonify({'message': 'User not found'}), 404
 
             new_album = Album(title=title, artist_id=current_user.id)
 
@@ -73,7 +82,19 @@ class AlbumListResource(Resource):
             db.session.rollback()
             return jsonify({'message': 'An error occurred while creating an album'}), 500
 
+
 class AlbumResource(Resource):
+    @jwt_required()
+    @marshal_with(album_fields)
+    def get(self, album_id):
+        try:
+            album = Album.query.get(album_id)
+            if not album:
+                return jsonify({'message': 'Album not found'}), 404
+            return album, 200
+        except SQLAlchemyError:
+            return jsonify({'message': 'An error occurred while fetching the album'}), 500
+
     @jwt_required()
     @marshal_with(album_fields)
     @creator_or_admin_required
@@ -83,9 +104,13 @@ class AlbumResource(Resource):
             new_title = data.get('title')
 
             current_user_email = get_jwt_identity()
-            current_user = User.query.filter_by(email=current_user_email).first()
+            current_user = User.query.filter_by(
+                email=current_user_email).first()
+            if not current_user:
+                return jsonify({'message': 'User not found'}), 404
 
-            album = Album.query.filter_by(id=album_id, artist_id=current_user.id).first()
+            album = Album.query.filter_by(
+                id=album_id, artist_id=current_user.id).first()
             if not album:
                 return jsonify({'message': 'Album not found'}), 404
 
@@ -97,28 +122,27 @@ class AlbumResource(Resource):
             db.session.rollback()
             return jsonify({'message': 'An error occurred while updating the album'}), 500
 
-    from flask import jsonify
-
-
     @jwt_required()
     @marshal_with(album_fields)
     @creator_or_admin_required
     def delete(self, album_id):
         try:
             current_user_email = get_jwt_identity()
-            current_user = User.query.filter_by(email=current_user_email).first()
+            current_user = User.query.filter_by(
+                email=current_user_email).first()
+            if not current_user:
+                return jsonify({'message': 'User not found'}), 404
 
             album = Album.query.get(album_id)
             if not album:
                 return jsonify({'message': 'Album not found'}), 404
 
-            # Check if the current user is an admin
-            admin = Admin.query.filter_by(email = current_user_email).first()
-            if current_user == admin:
+            admin = Admin.query.filter_by(email=current_user_email).first()
+            if admin:
                 db.session.delete(album)
                 db.session.commit()
                 return {'message': 'Album deleted successfully'}, 200
-            # If the current user is not an admin, they can only delete their own albums
+
             elif current_user.user_type == "creator" and album.artist_id != current_user.id:
                 return jsonify({'message': 'Unauthorized'}), 401
             else:
@@ -136,9 +160,19 @@ class AlbumAddSongResource(Resource):
     @creator_or_admin_required
     def post(self, album_id):
         try:
+            current_user_email = get_jwt_identity()
+            current_user = User.query.filter_by(
+                email=current_user_email).first()
+            if not current_user:
+                return jsonify({'message': 'User not found'}), 404
+            
             album = Album.query.get(album_id)
             if not album:
                 return jsonify({'message': 'Album not found'}), 404
+            
+            # Check if the current user is the creator of the album
+            if album.artist_id != current_user.id:
+                return jsonify({'message': 'Unauthorized'}), 401
 
             data = request.get_json()
             song_id = data.get('song_id')
@@ -154,15 +188,27 @@ class AlbumAddSongResource(Resource):
             db.session.rollback()
             return jsonify({'message': 'An error occurred while adding a song to the album'}), 500
 
+
+
 class AlbumDeleteSongResource(Resource):
     @jwt_required()
     @marshal_with(album_fields)
     @creator_or_admin_required
     def delete(self, album_id, song_id):
         try:
+            current_user_email = get_jwt_identity()
+            current_user = User.query.filter_by(
+                email=current_user_email).first()
+            if not current_user:
+                return jsonify({'message': 'User not found'}), 404
+            
             album = Album.query.get(album_id)
             if not album:
                 return jsonify({'message': 'Album not found'}), 404
+            
+            # Check if the current user is the creator of the album
+            if album.artist_id != current_user.id:
+                return jsonify({'message': 'Unauthorized'}), 401
 
             song = Song.query.get(song_id)
             if not song:
@@ -179,7 +225,8 @@ class AlbumDeleteSongResource(Resource):
             db.session.rollback()
             return jsonify({'message': 'An error occurred while deleting the song from the album'}), 500
 
+
 api.add_resource(AlbumListResource, '/albums')
 api.add_resource(AlbumResource, '/albums/<int:album_id>')
 api.add_resource(AlbumAddSongResource, '/albums/<int:album_id>/add-song')
-api.add_resource(AlbumDeleteSongResource, '/albums/<int:album_id>/delete-song/<int:song_id>')
+api.add_resource(AlbumDeleteSongResource,'/albums/<int:album_id>/delete-song/<int:song_id>')
