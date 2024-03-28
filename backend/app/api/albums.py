@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.models import Album, User, Song, db, Admin
 from functools import wraps
 
+
 api_bp = Blueprint('Album_api', __name__)
 api = Api(api_bp)
 
@@ -36,7 +37,7 @@ def creator_or_admin_required(fn):
         elif admin:
             return fn(*args, **kwargs)
         else:
-            return jsonify({'message': 'Unauthorized'}), 401
+            return {'message': 'Unauthorized'}, 401
 
     return wrapper
 
@@ -164,7 +165,7 @@ class AlbumAddSongResource(Resource):
             current_user = User.query.filter_by(
                 email=current_user_email).first()
             if not current_user:
-                return jsonify({'message': 'User not found'}), 404
+                return {'message': 'User not found'}, 404
             
             album = Album.query.get(album_id)
             if not album:
@@ -178,7 +179,7 @@ class AlbumAddSongResource(Resource):
             song_id = data.get('song_id')
             song = Song.query.get(song_id)
             if not song:
-                return jsonify({'message': 'Song not found'}), 404
+                return {'message': 'Song not found'}, 404
 
             album.songs.append(song)
             db.session.commit()
@@ -186,7 +187,7 @@ class AlbumAddSongResource(Resource):
             return album, 200
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({'message': 'An error occurred while adding a song to the album'}), 500
+            return {'message': 'An error occurred while adding a song to the album'}, 500
 
 
 

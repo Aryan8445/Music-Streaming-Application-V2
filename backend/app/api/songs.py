@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify
 from flask_restful import Resource, reqparse, marshal_with, fields, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import Song, User, db
+from app.models import Song, User, db, Admin
 from datetime import datetime
+
 
 api_bp = Blueprint('Song_api', __name__)
 api = Api(api_bp)
@@ -95,6 +96,12 @@ class SongResource(Resource):
             song = Song.query.get(song_id)
             if not song:
                 return {'message': 'Song not found'}, 404
+
+            admin = Admin.query.filter_by(email=current_user_email).first()
+            if admin:
+                db.session.delete(song)
+                db.session.commit()
+                return {'message': 'Song deleted successfully'}, 200
 
             # Check if the current user is the artist of the song
             if song.artist != current_user:
