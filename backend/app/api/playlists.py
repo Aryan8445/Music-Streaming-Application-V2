@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_restful import Resource, Api, reqparse, fields, marshal_with
+from flask_restful import Resource, Api, fields, marshal_with
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 from app.models import Playlist, User, Song, db
@@ -31,7 +31,7 @@ class PlaylistListResource(Resource):
             playlists = Playlist.query.filter_by(user_id=current_user.id).all()
             return playlists
         except SQLAlchemyError:
-            return {'message': 'An error occurred while fetching playlists'}, 500
+            return jsonify({'message': 'An error occurred while fetching playlists'}), 500
 
     @jwt_required()
     @marshal_with(playlist_fields)
@@ -57,7 +57,7 @@ class PlaylistListResource(Resource):
             return new_playlist, 201
         except SQLAlchemyError:
             db.session.rollback()
-            return {'message': 'An error occurred while creating a playlist'}, 500
+            return jsonify({'message': 'An error occurred while creating a playlist'}), 500
 
 class PlaylistResource(Resource):
     @jwt_required()
@@ -72,7 +72,7 @@ class PlaylistResource(Resource):
 
             playlist = Playlist.query.filter_by(id=playlist_id, user_id=current_user.id).first()
             if not playlist:
-                return {'message': 'Playlist not found'}, 404
+                return jsonify({'message': 'Playlist not found'}), 404
 
             playlist.title = new_title
             db.session.commit()
@@ -80,7 +80,7 @@ class PlaylistResource(Resource):
             return playlist, 200
         except SQLAlchemyError:
             db.session.rollback()
-            return {'message': 'An error occurred while updating the playlist'}, 500
+            return jsonify({'message': 'An error occurred while updating the playlist'}), 500
 
 
     @jwt_required()
@@ -90,7 +90,7 @@ class PlaylistResource(Resource):
             current_user = User.query.filter_by(email=current_user_email).first()
             playlist = Playlist.query.filter_by(id=playlist_id, user_id=current_user.id).first()
             if not playlist:
-                return {'message': 'Playlist not found'}, 404
+                return jsonify({'message': 'Playlist not found'}), 404
 
             db.session.delete(playlist)
             db.session.commit()
@@ -107,13 +107,13 @@ class PlaylistAddSongResource(Resource):
         try:
             playlist = Playlist.query.get(playlist_id)
             if not playlist:
-                return {'message': 'Playlist not found'}, 404
+                return jsonify({'message': 'Playlist not found'}), 404
 
             data = request.get_json()
             song_id = data.get('song_id')
             song = Song.query.get(song_id)
             if not song:
-                return {'message': 'Song not found'}, 404
+                return jsonify({'message': 'Song not found'}), 404
 
             playlist.songs.append(song)
             db.session.commit()
@@ -121,7 +121,7 @@ class PlaylistAddSongResource(Resource):
             return playlist, 200
         except SQLAlchemyError:
             db.session.rollback()
-            return {'message': 'An error occurred while adding a song to the playlist'}, 500
+            return jsonify({'message': 'An error occurred while adding a song to the playlist'}), 500
 
 class PlaylistDeleteSongResource(Resource):
     @jwt_required()
@@ -130,14 +130,14 @@ class PlaylistDeleteSongResource(Resource):
         try:
             playlist = Playlist.query.get(playlist_id)
             if not playlist:
-                return {'message': 'Playlist not found'}, 404
+                return jsonify({'message': 'Playlist not found'}), 404
 
             song = Song.query.get(song_id)
             if not song:
-                return {'message': 'Song not found'}, 404
+                return jsonify({'message': 'Song not found'}), 404
 
             if song not in playlist.songs:
-                return {'message': 'Song not in playlist'}, 404
+                return jsonify({'message': 'Song not in playlist'}), 404
 
             playlist.songs.remove(song)
             db.session.commit()
@@ -145,7 +145,7 @@ class PlaylistDeleteSongResource(Resource):
             return playlist, 200
         except SQLAlchemyError:
             db.session.rollback()
-            return {'message': 'An error occurred while deleting the song from the playlist'}, 500
+            return jsonify({'message': 'An error occurred while deleting the song from the playlist'}), 500
 
 api.add_resource(PlaylistListResource, '/playlists')
 api.add_resource(PlaylistResource, '/playlists/<int:playlist_id>')
