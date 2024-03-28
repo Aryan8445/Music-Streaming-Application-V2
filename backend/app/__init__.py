@@ -29,12 +29,14 @@ def create_app():
     from .api.playlists import api_bp as playlists_api_bp
     from .api.songs import api_bp as songs_api_bp
     from .api.albums import api_bp as albums_api_bp
+    from .api.ratings import api_bp as ratings_api_bp
 
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(controllers, url_prefix='/')
     app.register_blueprint(playlists_api_bp, url_prefix='/api')
     app.register_blueprint(songs_api_bp, url_prefix='/api')
     app.register_blueprint(albums_api_bp, url_prefix='/api')
+    app.register_blueprint(ratings_api_bp, url_prefix='/api')
     
     app.app_context().push()
 
