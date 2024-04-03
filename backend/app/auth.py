@@ -54,7 +54,7 @@ def signup():
 
     return jsonify({'message': 'User created successfully', 'access_token': access_token}), 201
 
-# Other authentication/authorization routes and functions can be added as needed
+
 
 @jwt_required()
 @auth.route('/protected', methods=['GET'])
