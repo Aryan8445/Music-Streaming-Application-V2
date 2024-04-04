@@ -1,3 +1,4 @@
+# auth.py
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -54,15 +55,20 @@ def signup():
 
     return jsonify({'message': 'User created successfully', 'access_token': access_token}), 201
 
-
-
+@auth.route('/user', methods=['GET'])
 @jwt_required()
-@auth.route('/protected', methods=['GET'])
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+def get_user():
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    admin = Admin.query.filter_by(email=current_user_email).first()
+    if user:
+        return jsonify({'email': user.email, 'user_type': 'user'}), 200
+    elif admin:
+        return jsonify({'email': admin.email, 'user_type': 'admin'}), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
 
-@jwt_required()
 @auth.route('/logout', methods=['POST'])
+@jwt_required()
 def logout():
     return jsonify({'message': 'Successfully logged out'}), 200

@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import axios from 'axios';
 
 export default createStore({
   state: {
@@ -25,21 +26,31 @@ export default createStore({
     async logout({ commit }) {
       try {
         // Perform logout logic here
-        commit('setUser', null);
-        commit('setLoggedIn', false);
+        localStorage.removeItem('access_token'); // Remove access token from local storage
+        commit('setUser', null); // Set user to null
+        commit('setLoggedIn', false); // Set isLoggedIn to false
       } catch (error) {
         console.error('Logout failed:', error);
         // Handle error
       }
     },
     async checkLoggedIn({ commit }) {
-      try {
-        // Perform check logged in logic here
-        commit('setUser', logged_in_as);
-        commit('setLoggedIn', true);
-      } catch (error) {
-        console.error('User not authenticated:', error);
-        // Handle error
+      const access_token = localStorage.getItem('access_token');
+      if (access_token) {
+        try {
+          // Perform check logged in logic here
+          // Assuming you fetch user data from an endpoint and set it to the state
+          const response = await axios.get('http://127.0.0.1:5000/user');
+          const user = response.data; // Assuming the response contains user data
+          commit('setUser', user);
+          commit('setLoggedIn', true);
+        } catch (error) {
+          console.error('User not authenticated:', error);
+          // Handle error
+        }
+      } else {
+        // If no access token found, set isLoggedIn to false
+        commit('setLoggedIn', false);
       }
     },
     clearErrorMessage({ commit }) {
