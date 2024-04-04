@@ -9,37 +9,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-            <li class="nav-item" v-if="isLoggedIn">
-              <router-link class="nav-link" to="/home">Home</router-link>
-            </li>
-            <li class="nav-item" v-if="isLoggedIn">
-              <router-link class="nav-link" to="/profile">Profile</router-link>
-            </li>
-            <li class="nav-item" v-if="isLoggedIn && user === 'user'">
-              <router-link class="nav-link" to="/upload_song">Creator Account</router-link>
-            </li>
-            <li class="nav-item" v-if="isLoggedIn && user === 'creator'">
-              <router-link class="nav-link" to="/creator_dashboard">Creator Dashboard</router-link>
-            </li>
-            <li class="nav-item" v-if="isLoggedIn">
-              <a class="nav-link" href="/logout" @click="logout">Logout</a>
+            <li class="nav-item" v-for="(navItem, index) in dynamicNavbarItems" :key="index">
+              <router-link :to="navItem.route" class="nav-link">{{ navItem.label }}</router-link>
             </li>
           </ul>
-          <div class="d-flex" v-if="isLoggedIn">
-            <form class="d-flex" @submit.prevent="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="query" />
-              <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-          </div>
-          <ul class="navbar-nav ms-auto" v-else>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/login">Login</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/sign_up">Sign Up</router-link>
-            </li>
-          </ul>
+          <form class="d-flex" @submit.prevent="search" v-if="isLoggedIn">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="searchQuery">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
         </div>
       </div>
     </nav>
@@ -63,54 +40,94 @@
 
 <script>
 import axios from 'axios';
-import { mapGetters } from 'vuex';
 
 export default {
+  data() {
+    return {
+      searchQuery: '', // Store search query
+      user: null,
+      userType: null,
+      errorMessage: '',
+      successMessage: ''
+    };
+  },
   computed: {
-    ...mapGetters(['errorMessage', 'successMessage']),
-    user() {
-      return this.$store.state.user;
-    },
+    
     isLoggedIn() {
-      return this.$store.state.isLoggedIn;
+
+      return localStorage.getItem('access_token') !== null;
+    },
+    dynamicNavbarItems() {
+      // Define dynamic navbar items based on user's login status and user type
+      const userType = localStorage.getItem('user_type');
+      const isLoggedIn = this.isLoggedIn;
+
+      // Default navbar items for guests
+      let navItems = [];
+
+      if (isLoggedIn) {
+        // Add logged-in user's navbar items
+        if (userType === 'admin') {
+          navItems = [
+            { label: 'Songs', route: '/all_songs' },
+            { label: 'Users', route: '/all_users' },
+            { label: 'Creators', route: '/all_creators' },
+            { label: 'Logout', route: '/logout' }
+          ];
+        } else if (userType === 'creator') {
+          navItems = [
+            { label: 'Home', route: '/home' },
+            { label: 'Profile', route: '/profile' },
+            { label: 'Creator Account', route: '/upload_song' },
+            { label: 'Creator Dashboard', route: '/creator_dashboard' },
+            { label: 'Logout', route: '/logout' }
+          ];
+        } else {
+          navItems = [
+            { label: 'Home', route: '/home' },
+            { label: 'Profile', route: '/profile' },
+            { label: 'Creator Account', route: '/upload_song' },
+            { label: 'Logout', route: '/logout' }
+          ];
+        }
+      } else {
+        // Default navbar items for guests
+        navItems = [
+          { label: 'Login', route: '/login' },
+          { label: 'Sign Up', route: '/sign_up' }
+        ];
+      }
+
+      return navItems;
+    }
+  },
+  methods: {
+    async search() {
+      // Implement search functionality based on the searchQuery
+      console.log('Search query:', this.searchQuery);
+      // Example: Redirect to search results page with query parameter
+      this.$router.push({ path: '/search', query: { q: this.searchQuery } });
+      // Clear search query after search
+      this.searchQuery = '';
+    },
+    async clearErrorMessage() {
+      this.errorMessage = '';
+    },
+    async clearSuccessMessage() {
+      this.successMessage = '';
     }
   },
   created() {
-    this.checkLoggedIn();
-  },
-  methods: {
-    async logout() {
-      try {
-        await axios.post('/api/logout');
-        localStorage.removeItem('access_token');
-        this.$store.commit('setUser', null);
-        this.$store.commit('setLoggedIn', false);
-        this.$router.push('/login');
-      } catch (error) {
-        console.error('Logout failed:', error);
-        // Handle error
-      }
-    },
-    async checkLoggedIn() {
-      const access_token = localStorage.getItem('access_token');
-      if (access_token) {
-        try {
-          const response = await axios.get('/api/protected');
-          const { logged_in_as } = response.data;
-          this.$store.commit('setUser', logged_in_as);
-          this.$store.commit('setLoggedIn', true);
-        } catch (error) {
-          console.error('User not authenticated:', error);
-          // Handle error
-        }
-      }
-    },
-    clearErrorMessage() {
-      this.$store.commit('setErrorMessage', '');
-    },
-    clearSuccessMessage() {
-      this.$store.commit('setSuccessMessage', '');
+    // Check user's login status on component creation
+    const access_token = localStorage.getItem('access_token');
+    if (access_token) {
+      this.userType = localStorage.getItem('user_type');
+      this.user = localStorage.getItem('user');
     }
-  },
+  }
 };
 </script>
+
+<style scoped>
+/* Add custom styles if needed */
+</style>

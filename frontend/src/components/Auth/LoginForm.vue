@@ -1,5 +1,14 @@
-<!-- loginform.vue -->
 <template>
+  <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show w-75 mx-auto" role="alert">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="clearErrorMessage"></button>
+    </div>
+    <!-- Success Message -->
+    <div v-if="successMessage" class="alert alert-success alert-dismissible fade show  w-75 mx-auto" role="alert">
+      {{ successMessage }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="clearSuccessMessage"></button>
+    </div>
+
   <div class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-6">
@@ -19,14 +28,6 @@
           </div>
 
           <!-- Error Message -->
-          <div v-if="errorMessage" class="alert alert-danger text-center" role="alert">
-            {{ errorMessage }}
-          </div>
-
-          <!-- Success Message -->
-          <div v-if="successMessage" class="alert alert-success text-center" role="alert">
-            {{ successMessage }}
-          </div>
 
           <!-- Login Button -->
           <div class="d-grid gap-2 col-6 mx-auto">
@@ -51,15 +52,23 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      errorMessage: '',
+      successMessage: ''
     };
   },
   methods: {
+    async clearErrorMessage() {
+      this.errorMessage = '';
+    },
+    async clearSuccessMessage() {
+      this.successMessage = '';
+    },
     async login() {
       try {
         // Reset error and success messages
-        this.$store.commit('setErrorMessage', '');
-        this.$store.commit('setSuccessMessage', '');
+        this.errorMessage = '';
+        this.successMessage = '';
 
         // Validate email and password fields
         if (!this.email || !this.password) {
@@ -73,9 +82,10 @@ export default {
 
         const { access_token, user_type } = response.data;
 
-        // Store access token and user type in localStorage or Vuex store
+        // Store access token and user type in sessionStorage
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('user_type', user_type);
+
 
         // Redirect based on user type
         if (user_type === 'admin') {
@@ -85,11 +95,11 @@ export default {
         }
 
         // Set success message
-        this.$store.commit('setSuccessMessage', 'Login successful!');
+        this.successMessage = 'Login successful!';
       } catch (error) {
         console.error('Login failed:', error.message);
         // Set error message
-        this.$store.commit('setErrorMessage', error.response.data.message || 'Login failed');
+        this.errorMessage = error.response.data.message || 'Login failed';
       }
     }
   }

@@ -6,6 +6,8 @@ from app.models import User, Admin
 
 auth = Blueprint('auth', __name__)
 
+from datetime import datetime, timedelta
+
 @auth.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -17,13 +19,23 @@ def login():
 
     if user and check_password_hash(user.password, password):
         access_token = create_access_token(identity=email)
-        return jsonify({'access_token': access_token, 'user_type': 'user'}), 200
+        expires = datetime.utcnow() + timedelta(hours=24)  
+        return jsonify({
+            'access_token': access_token,
+            'user_type': 'user',
+            'expires_at': expires  
+        }), 200
     elif admin and check_password_hash(admin.password, password):
         access_token = create_access_token(identity=email)
-        return jsonify({'access_token': access_token, 'user_type': 'admin'}), 200
+        expires = datetime.utcnow() + timedelta(hours=24)  
+        return jsonify({
+            'access_token': access_token,
+            'user_type': 'admin',
+            'expires_at': expires  
+        }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
-
+    
 @auth.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -52,8 +64,8 @@ def signup():
 
     # Generate access token
     access_token = create_access_token(identity=email)
-
-    return jsonify({'message': 'User created successfully', 'access_token': access_token}), 201
+    expires = datetime.utcnow() + timedelta(hours=24)
+    return jsonify({'message': 'User created successfully', 'access_token': access_token, 'expires_at': expires}), 201
 
 @auth.route('/user', methods=['GET'])
 @jwt_required()
@@ -72,3 +84,10 @@ def get_user():
 @jwt_required()
 def logout():
     return jsonify({'message': 'Successfully logged out'}), 200
+
+
+@auth.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
