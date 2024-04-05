@@ -17,6 +17,7 @@
             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="searchQuery">
             <button class="btn btn-outline-success" type="submit">Search</button>
           </form>
+          <button v-if="isLoggedIn" @click="logout" class="btn btn-outline-danger">Logout</button>
         </div>
       </div>
     </nav>
@@ -72,7 +73,6 @@ export default {
             { label: 'Songs', route: '/all_songs' },
             { label: 'Users', route: '/all_users' },
             { label: 'Creators', route: '/all_creators' },
-            { label: 'Logout', route: '/logout' }
           ];
         } else if (userType === 'creator') {
           navItems = [
@@ -80,14 +80,12 @@ export default {
             { label: 'Profile', route: '/profile' },
             { label: 'Creator Account', route: '/upload_song' },
             { label: 'Creator Dashboard', route: '/creator_dashboard' },
-            { label: 'Logout', route: '/logout' }
           ];
         } else {
           navItems = [
             { label: 'Home', route: '/home' },
             { label: 'Profile', route: '/profile' },
             { label: 'Creator Account', route: '/upload_song' },
-            { label: 'Logout', route: '/logout' }
           ];
         }
       } else {
@@ -115,6 +113,22 @@ export default {
     },
     async clearSuccessMessage() {
       this.successMessage = '';
+    },
+    async logout() {
+      try {
+        // const response = await axios.post('/logout');
+        // Clear access token and user type from localStorage
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user_type');
+        // Redirect to login page after logout
+        this.$router.push('/login');
+        // Set success message
+        this.successMessage = 'Logout successful!';
+      } catch (error) {
+        console.error('Logout failed:', error.message);
+        // Set error message
+        this.errorMessage = error.response.data.message || 'Logout failed';
+      }
     }
   },
   created() {
