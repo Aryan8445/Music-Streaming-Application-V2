@@ -80,11 +80,6 @@ def get_user():
     else:
         return jsonify({'message': 'User not found'}), 404
 
-@auth.route('/logout', methods=['POST'])
-@jwt_required()
-def logout():
-    return jsonify({'message': 'Successfully logged out'}), 200
-
 
 @auth.route('/protected', methods=['GET'])
 @jwt_required()
