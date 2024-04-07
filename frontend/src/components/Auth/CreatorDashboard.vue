@@ -1,17 +1,17 @@
 <template>
     <div>
         <h1>Creator Dashboard</h1>
-        <!-- Your content goes here -->
+        <!-- Your content here -->
     </div>
 </template>
 
 <script>
 export default {
     name: 'CreatorDashboard',
-    // Your component logic goes here
+    // Your component logic here
 }
 </script>
 
 <style scoped>
-/* Your component styles go here */
+/* Your component styles here */
 </style>

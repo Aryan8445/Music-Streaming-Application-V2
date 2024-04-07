@@ -43,7 +43,6 @@ def creator_or_admin_required(fn):
 
 
 class AlbumListResource(Resource):
-    @jwt_required()
     @marshal_with(album_fields)
     def get(self):
         try:

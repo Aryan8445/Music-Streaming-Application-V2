@@ -27,7 +27,6 @@ song_fields = {
 
 
 class SongListResource(Resource):
-    @jwt_required()
     @marshal_with(song_fields)
     def get(self):
         try:

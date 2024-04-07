@@ -1,14 +1,4 @@
 <template>
-  <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show w-75 mx-auto" role="alert">
-      {{ errorMessage }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="clearErrorMessage"></button>
-    </div>
-    <!-- Success Message -->
-    <div v-if="successMessage" class="alert alert-success alert-dismissible fade show  w-75 mx-auto" role="alert">
-      {{ successMessage }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="clearSuccessMessage"></button>
-    </div>
-
   <div class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-6">
@@ -86,7 +76,7 @@ export default {
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('user_type', user_type);
 
-
+        window.location.reload();
         // Redirect based on user type
         if (user_type === 'admin') {
           this.$router.push('/admin_dashboard');

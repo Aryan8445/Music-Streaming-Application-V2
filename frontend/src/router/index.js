@@ -1,19 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
-import Login from '../views/LoginView.vue';
-import Signup from '../views/SignupView.vue';
-import UserProfile from '../views/UserProfile.vue';
-import CreatorProfile from '../views/CreatorDashboard.vue';
-import AdminDashboard from '../views/AdminDashboard.vue';
-import LandingPage from '../views/LandingPage.vue';
-import SignupView from '@/views/SignupView.vue';
+import LoginForm from '../components/Auth/LoginForm';
+import SignupForm from '../components/Auth/SignupForm';
+import UserProfile from '../components/Auth/UserProfile.vue';
+import CreatorDashboard from '../components/Auth/CreatorDashboard.vue';
+import AdminDashboard from '../components/Auth/AdminDashboard.vue';
+import AuthService from '../services/AuthService';
 
 const routes = [
-  {
-    path: '/',
-    name: 'LandingPage',
-    component: LandingPage,
-  },
   {
     path: '/home',
     name: 'Home',
@@ -22,33 +16,54 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: Login,
+    component: LoginForm,
   },
   {
     path: '/sign_up',
     name: 'Signup',
-    component: Signup,
+    component: SignupForm,
   },
   {
     path: '/user-profile',
     name: 'UserProfile',
     component: UserProfile,
+    meta: { requiresAuth: true } // Protected route, requires authentication
   },
   {
-    path: '/creator-profile',
-    name: 'CreatorProfile',
-    component: CreatorProfile,
+    path: '/creator-dashboard',
+    name: 'CreatorDashboard',
+    component: CreatorDashboard,
+    meta: { requiresAuth: true } // Protected route, requires authentication
   },
   {
     path: '/admin-dashboard',
     name: 'AdminDashboard',
     component: AdminDashboard,
+    meta: { requiresAuth: true } // Protected route, requires authentication
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+// Navigation guard to check authentication status before accessing protected routes
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    // Check if the user is authenticated
+    const isAuthenticated = AuthService.isAuthenticated(); // Implement this method in AuthService.js
+    if (isAuthenticated) {
+      // Proceed to the route
+      next();
+    } else {
+      // Redirect to the login page if not authenticated
+      next('/login');
+    }
+  } else {
+    // Allow access to non-protected routes
+    next();
+  }
 });
 
 export default router;

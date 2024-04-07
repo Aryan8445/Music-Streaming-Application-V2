@@ -14,7 +14,8 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email, user_type='user').first()
+    creator = User.query.filter_by(email=email, user_type='creator').first()
     admin = Admin.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password, password):
@@ -31,6 +32,14 @@ def login():
         return jsonify({
             'access_token': access_token,
             'user_type': 'admin',
+            'expires_at': expires  
+        }), 200
+    elif creator and check_password_hash(creator.password, password):
+        access_token = create_access_token(identity=email)
+        expires = datetime.utcnow() + timedelta(hours=24)  
+        return jsonify({
+            'access_token': access_token,
+            'user_type': 'creator',
             'expires_at': expires  
         }), 200
     else:
@@ -71,12 +80,15 @@ def signup():
 @jwt_required()
 def get_user():
     current_user_email = get_jwt_identity()
-    user = User.query.filter_by(email=current_user_email).first()
+    user = User.query.filter_by(email=current_user_email, user_type='user').first()
+    creator = User.query.filter_by(email=current_user_email, user_type='creator').first()
     admin = Admin.query.filter_by(email=current_user_email).first()
     if user:
         return jsonify({'email': user.email, 'user_type': 'user'}), 200
     elif admin:
         return jsonify({'email': admin.email, 'user_type': 'admin'}), 200
+    elif creator:
+        return jsonify({'email': creator.email, 'user_type': 'creator'}), 200
     else:
         return jsonify({'message': 'User not found'}), 404
 
