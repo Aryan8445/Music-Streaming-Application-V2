@@ -5,11 +5,11 @@ import SignupForm from '../components/Auth/SignupForm';
 import UserProfile from '../components/Auth/UserProfile.vue';
 import CreatorDashboard from '../components/Auth/CreatorDashboard.vue';
 import AdminDashboard from '../components/Auth/AdminDashboard.vue';
-import AuthService from '../services/AuthService';
+
 
 const routes = [
   {
-    path: '/home',
+    path: '/',
     name: 'Home',
     component: Home,
   },
@@ -52,7 +52,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     // Check if the user is authenticated
-    const isAuthenticated = AuthService.isAuthenticated(); // Implement this method in AuthService.js
     if (isAuthenticated) {
       // Proceed to the route
       next();
