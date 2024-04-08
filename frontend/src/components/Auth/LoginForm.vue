@@ -74,15 +74,15 @@ export default {
           password: this.password
         });
 
-        const { access_token, user_type } = response.data;
+        const { access_token, user_type, expires_at } = response.data;
 
-        // Store access token and user type in sessionStorage
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user_type', user_type);
-
+        // Store access token, user type, and expiration time in Vuex store
+        localStorage.setItem('access_token', access_token)
+        localStorage.setItem('user_type', user_type)
+        localStorage.setItem('expires_at', expires_at)
         // Redirect based on user type
         if (user_type === 'admin') {
-          this.$router.push('/admin_dashboard');
+          this.$router.push('/admin-dashboard');
         } else {
           this.$router.push('/');
         }

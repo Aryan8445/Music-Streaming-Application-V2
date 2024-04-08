@@ -1,45 +1,40 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
-import LoginForm from '../components/Auth/LoginForm';
-import SignupForm from '../components/Auth/SignupForm';
-import UserProfile from '../components/Auth/UserProfile.vue';
-import CreatorDashboard from '../components/Auth/CreatorDashboard.vue';
-import AdminDashboard from '../components/Auth/AdminDashboard.vue';
-
+import axios from 'axios';
+import store from '../store'; // Import the Vuex store
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: () => import('../views/Home.vue'),
   },
   {
     path: '/login',
     name: 'Login',
-    component: LoginForm,
+    component: () => import('../components/Auth/LoginForm.vue'),
   },
   {
     path: '/sign_up',
     name: 'Signup',
-    component: SignupForm,
+    component: () => import('../components/Auth/SignupForm.vue'),
   },
   {
     path: '/user-profile',
     name: 'UserProfile',
-    component: UserProfile,
+    component: () => import('../components/Auth/UserProfile.vue'),
     meta: { requiresAuth: true } // Protected route, requires authentication
   },
   {
     path: '/creator-dashboard',
     name: 'CreatorDashboard',
-    component: CreatorDashboard,
+    component: () => import('../components/Auth/CreatorDashboard.vue'),
     meta: { requiresAuth: true } // Protected route, requires authentication
   },
   {
     path: '/admin-dashboard',
     name: 'AdminDashboard',
-    component: AdminDashboard,
-    meta: { requiresAuth: true } // Protected route, requires authentication
+    component: () => import('../components/Auth/AdminDashboard.vue'), 
+    meta: { requiresAuth: true, isAdmin: true } // Protected route for admin only
   },
 ];
 
@@ -51,12 +46,35 @@ const router = createRouter({
 // Navigation guard to check authentication status before accessing protected routes
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
-    // Check if the user is authenticated
-    if (isAuthenticated) {
-      // Proceed to the route
-      next();
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      try {
+        // Send the JWT token with the request to the backend for validation
+        const response = await axios.get('http://127.0.0.1:5000/protected', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        // If the token is valid, allow access to the route
+        if (response.status === 200) {
+          if (to.meta.isAdmin && localStorage.getItem('user_type') !== 'admin') {
+            // If the user is not an admin and tries to access the admin dashboard, redirect to home
+            next('/');
+          } else {
+            next();
+          }
+        } else {
+          // If the token is invalid, redirect to the login page
+          store.dispatch('displayErrorMessage', 'Authentication failed. Please login again.');
+          next('/login');
+        }
+      } catch (error) {
+        console.error('Authentication failed:', error);
+        store.dispatch('displayErrorMessage', 'Authentication failed. Please login again.');
+        next('/login');
+      }
     } else {
-      // Redirect to the login page if not authenticated
+      // If the token is missing, redirect to the login page
       next('/login');
     }
   } else {

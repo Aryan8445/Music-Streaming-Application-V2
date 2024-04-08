@@ -53,6 +53,7 @@ def signup():
     lastname = data.get('lastName')
     password1 = data.get('password1')
     password2 = data.get('password2')
+    user_type = data.get('userRole')
 
     # Check if passwords match
     if password1 != password2:
@@ -64,11 +65,14 @@ def signup():
     if existing_user or existing_admin:
         return jsonify({'message': 'Email already exists'}), 400
 
+    if len(password1) < 4:
+        return jsonify({'message': 'Password must be at least 4 characters long'}), 400
+
     # Hash the password
     hashed_password = generate_password_hash(password1)
 
     # Create new user
-    new_user = User(email=email, firstname=firstname, lastname=lastname, password=hashed_password, user_type='user')
+    new_user = User(email=email, firstname=firstname, lastname=lastname, password=hashed_password, user_type=user_type)
     new_user.save()
 
     # Generate access token
@@ -97,4 +101,7 @@ def get_user():
 @jwt_required()
 def protected():
     current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    if current_user:
+        return jsonify(logged_in_as=current_user), 200
+    else:
+        return jsonify({'message': 'Unauthorized'}), 401

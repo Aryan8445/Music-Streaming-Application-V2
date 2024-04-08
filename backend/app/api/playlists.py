@@ -17,6 +17,7 @@ playlist_fields = {
         'genre': fields.String,
         'file_path': fields.String,
         'lyrics': fields.String,
+        'artist_id': fields.Integer,
         'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}")
     }))
 }

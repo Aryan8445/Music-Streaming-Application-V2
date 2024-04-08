@@ -13,6 +13,7 @@ album_fields = {
     'id': fields.Integer,
     'title': fields.String,
     'artist_id': fields.Integer,
+    'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}"),
     'songs': fields.List(fields.Nested({
         'id': fields.Integer,
         'title': fields.String,
@@ -21,6 +22,7 @@ album_fields = {
         'file_path': fields.String,
         'lyrics': fields.String,
         'artist_id': fields.Integer,
+        'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}")
     }))
 }
 

@@ -34,7 +34,7 @@ export default {
 <style scoped>
 .message-container {
   position: fixed;
-  top: 60px; /* Adjust as needed to clear the navbar */
+  top: 80px; /* Adjust as needed to clear the navbar */
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -48,6 +48,7 @@ export default {
   padding: 10px 20px;
   border-radius: 5px;
   margin-bottom: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .close-btn {
