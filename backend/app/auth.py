@@ -88,11 +88,11 @@ def get_user():
     creator = User.query.filter_by(email=current_user_email, user_type='creator').first()
     admin = Admin.query.filter_by(email=current_user_email).first()
     if user:
-        return jsonify({'email': user.email, 'user_type': 'user'}), 200
+        return jsonify({'email': user.email, 'user_type': user.user_type}), 200
     elif admin:
         return jsonify({'email': admin.email, 'user_type': 'admin'}), 200
     elif creator:
-        return jsonify({'email': creator.email, 'user_type': 'creator'}), 200
+        return jsonify({'email': creator.email, 'user_type': creator.user_type}), 200
     else:
         return jsonify({'message': 'User not found'}), 404
 

@@ -25,10 +25,40 @@ const routes = [
     meta: { requiresAuth: true } // Protected route, requires authentication
   },
   {
+    path: '/upload-song',
+    name: 'UploadSong',
+    component: () => import('../components/Songs/UploadSong.vue'),
+    meta: { requiresAuth: true} // Protected route, requires authentication
+  },
+  {
+    path: '/create-playlist',
+    name: 'CreatePlaylist',
+    component: () => import('../components/Playlists/CreatePlaylist.vue'),
+    meta: { requiresAuth: true} // Protected route, requires authentication
+  },
+  {
+    path: '/create-Album',
+    name: 'CreateAlbum',
+    component: () => import('../components/Albums/CreateAlbum.vue'),
+    meta: { requiresAuth: true, isCreator: true} // Protected route, requires authentication
+  },
+  {
+    path: '/playlist-songs/:id',
+    name: 'PlaylistSongs',
+    component: () => import('../components/Playlists/PlaylistSongs.vue'),
+    meta: { requiresAuth: true} // Protected route, requires authentication
+  },
+  {
+    path: '/album-songs/:id',
+    name: 'AlbumSongs',
+    component: () => import('../components/Albums/AlbumSongs.vue'),
+    meta: { requiresAuth: true, isCreator: true} // Protected route, requires authentication
+  },
+  {
     path: '/creator-dashboard',
     name: 'CreatorDashboard',
     component: () => import('../components/Auth/CreatorDashboard.vue'),
-    meta: { requiresAuth: true } // Protected route, requires authentication
+    meta: { requiresAuth: true, isCreator: true  } // Protected route, requires authentication
   },
   {
     path: '/admin-dashboard',
@@ -60,7 +90,12 @@ router.beforeEach(async (to, from, next) => {
           if (to.meta.isAdmin && localStorage.getItem('user_type') !== 'admin') {
             // If the user is not an admin and tries to access the admin dashboard, redirect to home
             next('/');
-          } else {
+          } 
+          else if (to.meta.isCreator && localStorage.getItem('user_type') !== 'creator') {
+            // If the user is not a creator and tries to access the creator dashboard, redirect to home
+            next('/');
+          } 
+          else {
             next();
           }
         } else {

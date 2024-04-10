@@ -40,9 +40,14 @@
       <div class="row">
         <AlbumCard v-for="album in displayedAlbums" :key="album.id" :album="album" />
       </div>
+      <hr>
       <!-- Playlist section -->
-      <div v-if="playlists.length > 0">
+      <div v-if="isLoggedIn() && playlists.length > 0">
+
         <h2 class="mt-4 d-flex justify-content-between align-items-center">Your Playlists
+          <span><router-link to="/create-playlist" style="border-radius: 20px; width: 120px;"
+              class="btn btn-outline-info btn-sm">Create Playlist</router-link></span>
+
           <div class="pagination">
             <button class="btn btn-icon mr-2" @click="previousPagePlaylists" :disabled="currentPagePlaylists === 1"
               v-if="currentPagePlaylists !== 1">
@@ -61,6 +66,17 @@
           <PlaylistCard v-for="playlist in displayedPlaylists" :key="playlist.id" :playlist="playlist" />
         </div>
       </div>
+      <div v-else-if="isLoggedIn()">
+        <div class="container mt-4">
+          <div class="alert alert-secondary rounded-lg shadow-sm text-center" role="alert">
+            <div>
+              <h3>No playlists available.</h3>
+            </div><br>
+            <router-link to="/create-playlist" style="border-radius: 20px; width: 120px;"
+              class="btn btn-outline-info btn-sm">Create Playlist</router-link>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -72,7 +88,7 @@ import NavBar from '@/components/Home/NavBar.vue';
 import ErrorSuccessMessage from '@/components/Auth/ErrorSuccessMessage.vue';
 import SongCard from '@/components/Home/SongCard.vue';
 import AlbumCard from '@/components/Home/AlbumCard.vue';
-import PlaylistCard from '@/components/Home/PlaylistCard.vue'; // Import PlaylistCard component
+import PlaylistCard from '@/components/Home/PlaylistCard.vue';
 
 export default {
   name: 'Home',
@@ -103,54 +119,54 @@ export default {
     displayedSongs() {
       const startIndex = (this.currentPage - 1) * this.pageSize;
       const endIndex = startIndex + this.pageSize;
-      return this.songs.slice(startIndex, endIndex);
+      return this.songs.slice().reverse().slice(startIndex, endIndex);
     },
     displayedAlbums() {
       const startIndex = (this.currentPageAlbums - 1) * this.pageSizeAlbums;
       const endIndex = startIndex + this.pageSizeAlbums;
-      return this.albums.slice(startIndex, endIndex);
+      return this.albums.slice().reverse().slice(startIndex, endIndex);
     },
     displayedPlaylists() {
       const startIndex = (this.currentPagePlaylists - 1) * this.pageSizePlaylists;
       const endIndex = startIndex + this.pageSizePlaylists;
-      return this.playlists.slice(startIndex, endIndex);
+      return this.playlists.slice().reverse().slice(startIndex, endIndex);
     }
   },
   mounted() {
     this.fetchData();
   },
   methods: {
+    isLoggedIn() {
+      const accessToken = localStorage.getItem('access_token');
+      return !!accessToken;
+    },
     async fetchData() {
-  try {
-    // Fetch songs and albums unconditionally
-    const [songsResponse, albumsResponse] = await Promise.all([
-      axios.get('http://127.0.0.1:5000/api/songs'),
-      axios.get('http://127.0.0.1:5000/api/albums')
-    ]);
-    this.songs = songsResponse.data;
-    this.albums = albumsResponse.data;
-    this.totalSongs = this.songs.length;
-    this.totalAlbums = this.albums.length;
+      try {
+        const [songsResponse, albumsResponse] = await Promise.all([
+          axios.get('http://127.0.0.1:5000/api/songs'),
+          axios.get('http://127.0.0.1:5000/api/albums')
+        ]);
+        this.songs = songsResponse.data;
+        this.albums = albumsResponse.data;
+        this.totalSongs = this.songs.length;
+        this.totalAlbums = this.albums.length;
 
-    // Check if access token exists
-    const accessToken = localStorage.getItem('access_token');
-    if (accessToken) {
-      // Fetch playlists if access token exists
-      const playlistsResponse = await axios.get('http://127.0.0.1:5000/api/playlists', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
+        const accessToken = localStorage.getItem('access_token');
+        if (accessToken) {
+          const playlistsResponse = await axios.get('http://127.0.0.1:5000/api/playlists', {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          });
+          this.playlists = playlistsResponse.data;
+          this.totalPlaylists = this.playlists.length;
+        } else {
+          console.log('Access token not found.');
         }
-      });
-      this.playlists = playlistsResponse.data;
-      this.totalPlaylists = this.playlists.length;
-    } else {
-      console.log('Access token not found.');
-    }
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-},
-
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
     nextPage() {
       if (this.currentPage * this.pageSize < this.totalSongs) {
         this.currentPage++;
@@ -180,6 +196,9 @@ export default {
       if (this.currentPagePlaylists > 1) {
         this.currentPagePlaylists--;
       }
+    },
+    createPlaylist() {
+      // Logic to create a new playlist
     }
   }
 };
@@ -217,5 +236,26 @@ export default {
 
 .fa-chevron-right {
   margin-left: 10px;
+}
+
+/* Styles for the no playlists available section */
+.text-center {
+  margin-top: 20px;
+}
+
+.btn-lg {
+  padding: 10px 20px;
+  font-size: 1.25rem;
+}
+
+
+.btn-outline-info {
+  color: #a817b8;
+  border-color: #a817b8;
+}
+
+.btn-outline-info:hover {
+  background-color: #a817b8;
+  color: #fff;
 }
 </style>

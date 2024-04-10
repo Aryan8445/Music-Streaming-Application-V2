@@ -1,8 +1,10 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request, current_app
 from flask_restful import Resource, reqparse, marshal_with, fields, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Song, User, db, Admin
 from datetime import datetime
+from werkzeug.utils import secure_filename
+import os
 
 
 api_bp = Blueprint('Song_api', __name__)
@@ -12,8 +14,8 @@ song_parser = reqparse.RequestParser()
 song_parser.add_argument('title', type=str, required=True, help='Title is required')
 song_parser.add_argument('release_date', type=str, required=True, help='Release date is required')
 song_parser.add_argument('genre', type=str, required=True, help='Genre is required')
-song_parser.add_argument('file_path', type=str, required=True, help='File path is required')
 song_parser.add_argument('lyrics', type=str)
+
 
 song_fields = {
     'id': fields.Integer,
@@ -35,27 +37,48 @@ class SongListResource(Resource):
         except Exception as e:
             return {'message': 'An error occurred while fetching songs'}, 500
 
-    @jwt_required()
+class SongUploadResource(Resource):
     @marshal_with(song_fields)
+    @jwt_required()
     def post(self):
-        try:
-            current_user_email = get_jwt_identity()
-            current_user = User.query.filter_by(email=current_user_email).first()
+        title = request.form['title']
+        release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%d')
+        genre = request.form['genre']
+        lyrics = request.form['lyrics']
 
-            args = song_parser.parse_args()
-            title = args['title']
-            release_date = datetime.strptime(args['release_date'], '%Y-%m-%d')
-            genre = args['genre']
-            file_path = args['file_path']
-            lyrics = args['lyrics']
+        current_user_email = get_jwt_identity()
+        current_user = User.query.filter_by(email=current_user_email).first()
 
-            new_song = Song(title=title, release_date=release_date, genre=genre, file_path=file_path, lyrics=lyrics, artist=current_user)
+        if 'song_file' not in request.files:
+            return {'message': 'No file part'}, 400
+        
+        song_file = request.files['song_file']
+
+        if song_file.filename == '':
+            return {'message': 'No selected file'}, 400
+
+        if song_file:
+            filename = secure_filename(song_file.filename)
+
+            songs_dir = os.path.join(current_app.root_path, 'static', 'songs')
+            os.makedirs(songs_dir, exist_ok=True)
+            file_path = os.path.join(songs_dir, filename)
+            song_file.save(file_path)
+
+
+            
+            new_song = Song(title=title, release_date=release_date, genre=genre, file_path=file_path, lyrics=lyrics, artist_id=current_user.id)
+            current_user.user_type = 'creator'
             db.session.add(new_song)
             db.session.commit()
 
             return new_song, 201
-        except Exception as e:
-            return {'message': 'An error occurred while adding a new song'}, 500
+        else:
+            return {'message': 'Invalid or missing song file'}, 400
+
+
+
+
 
 class SongResource(Resource):
     @jwt_required()
@@ -114,4 +137,5 @@ class SongResource(Resource):
             return {'message': 'An error occurred while deleting the song'}, 500
 
 api.add_resource(SongListResource, '/songs')
+api.add_resource(SongUploadResource, '/songs/upload')
 api.add_resource(SongResource, '/songs/<int:song_id>')

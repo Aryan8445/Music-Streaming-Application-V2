@@ -21,7 +21,7 @@
             <router-link class="nav-link" v-if="isLoggedIn" to="/profile">Profile</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" v-if="isLoggedIn && userType === 'user'" to="/upload_song">Creator Account</router-link>
+            <router-link class="nav-link" v-if="isLoggedIn && userType === 'user'" to="/upload-song">Creator Account</router-link>
           </li>
           <li class="nav-item" v-if="isLoggedIn && userType === 'creator'">
             <router-link class="nav-link" to="/creator-dashboard">Creators Dashboard</router-link>

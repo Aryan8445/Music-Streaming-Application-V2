@@ -5,7 +5,7 @@
         <div class="card-body">
           <h5 class="card-title text-center text-dark">{{ playlist.title }}</h5>
           <div class="d-flex justify-content-center">
-            <router-link :to="'/playlist/' + playlist.id" class="btn btn-outline-info btn-sm">View Playlist</router-link>
+            <router-link :to="'/playlist-songs/' + playlist.id" class="btn btn-outline-info btn-sm">View Playlist</router-link>
           </div>
         </div>
       </div>

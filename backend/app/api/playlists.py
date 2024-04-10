@@ -71,9 +71,12 @@ class PlaylistResource(Resource):
             current_user_email = get_jwt_identity()
             current_user = User.query.filter_by(email=current_user_email).first()
 
-            playlist = Playlist.query.filter_by(id=playlist_id, user_id=current_user.id).first()
+            playlist = Playlist.query.filter_by(id=playlist_id).first()
             if not playlist:
                 return jsonify({'message': 'Playlist not found'}), 404
+
+            if current_user.id != playlist.user_id:
+                return jsonify({'message': 'Unauthorized'}), 401
 
             playlist.title = new_title
             db.session.commit()
@@ -89,9 +92,12 @@ class PlaylistResource(Resource):
         try:
             current_user_email = get_jwt_identity()
             current_user = User.query.filter_by(email=current_user_email).first()
-            playlist = Playlist.query.filter_by(id=playlist_id, user_id=current_user.id).first()
+            playlist = Playlist.query.filter_by(id=playlist_id).first()
             if not playlist:
                 return jsonify({'message': 'Playlist not found'}), 404
+
+            if current_user.id != playlist.user_id:
+                return jsonify({'message': 'Unauthorized'}), 401
 
             db.session.delete(playlist)
             db.session.commit()
@@ -109,6 +115,12 @@ class PlaylistAddSongResource(Resource):
             playlist = Playlist.query.get(playlist_id)
             if not playlist:
                 return jsonify({'message': 'Playlist not found'}), 404
+
+            current_user_email = get_jwt_identity()
+            current_user = User.query.filter_by(email=current_user_email).first()
+
+            if current_user.id != playlist.user_id:
+                return jsonify({'message': 'Unauthorized'}), 401
 
             data = request.get_json()
             song_id = data.get('song_id')
@@ -133,6 +145,12 @@ class PlaylistDeleteSongResource(Resource):
             if not playlist:
                 return jsonify({'message': 'Playlist not found'}), 404
 
+            current_user_email = get_jwt_identity()
+            current_user = User.query.filter_by(email=current_user_email).first()
+
+            if current_user.id != playlist.user_id:
+                return jsonify({'message': 'Unauthorized'}), 401
+
             song = Song.query.get(song_id)
             if not song:
                 return jsonify({'message': 'Song not found'}), 404
@@ -148,7 +166,27 @@ class PlaylistDeleteSongResource(Resource):
             db.session.rollback()
             return jsonify({'message': 'An error occurred while deleting the song from the playlist'}), 500
 
+class PlaylistSongsResource(Resource):
+    @jwt_required()
+    @marshal_with(playlist_fields)
+    def get(self, playlist_id):
+        try:
+            playlist = Playlist.query.get(playlist_id)
+            if not playlist:
+                return jsonify({'message': 'Playlist not found'}), 404
+
+            current_user_email = get_jwt_identity()
+            current_user = User.query.filter_by(email=current_user_email).first()
+
+            if current_user.id != playlist.user_id:
+                return jsonify({'message': 'Unauthorized'}), 401
+
+            return playlist, 200
+        except SQLAlchemyError:
+            return jsonify({'message': 'An error occurred while fetching playlist songs'}), 500
+
 api.add_resource(PlaylistListResource, '/playlists')
 api.add_resource(PlaylistResource, '/playlists/<int:playlist_id>')
+api.add_resource(PlaylistSongsResource, '/playlists/<int:playlist_id>/songs')
 api.add_resource(PlaylistAddSongResource, '/playlists/<int:playlist_id>/add-song')
 api.add_resource(PlaylistDeleteSongResource, '/playlists/<int:playlist_id>/delete-song/<int:song_id>')
