@@ -63,7 +63,7 @@
           </div>
         </h2>
         <div class="row">
-          <PlaylistCard v-for="playlist in displayedPlaylists" :key="playlist.id" :playlist="playlist" />
+          <PlaylistCard v-for="playlist in displayedPlaylists" :key="playlist.id" :playlist="playlist" @delete="deletePlaylist" />
         </div>
       </div>
       <div v-else-if="isLoggedIn()">
@@ -197,8 +197,24 @@ export default {
         this.currentPagePlaylists--;
       }
     },
-    createPlaylist() {
-      // Logic to create a new playlist
+    async deletePlaylist(playlistId) {
+      try {
+        const accessToken = localStorage.getItem('access_token');
+        if (accessToken) {
+          await axios.delete(`http://127.0.0.1:5000/api/playlists/${playlistId}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          });
+
+          this.playlists = this.playlists.filter(playlist => playlist.id !== playlistId);
+          this.totalPlaylists--;
+        } else {
+          console.log('Access token not found.');
+        }
+      } catch (error) {
+        console.error('Error deleting playlist:', error);
+      }
     }
   }
 };
@@ -247,7 +263,6 @@ export default {
   padding: 10px 20px;
   font-size: 1.25rem;
 }
-
 
 .btn-outline-info {
   color: #a817b8;

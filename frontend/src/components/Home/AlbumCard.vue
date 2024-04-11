@@ -6,7 +6,7 @@
         <h5 class="card-title text-center text-dark">{{ album.title }}</h5>
         <p class="card-text text-center text-muted">Artist: {{ album.artist }}</p>
         <div class="d-flex justify-content-center">
-          <router-link :to="'/album/' + album.id" class="btn btn-outline-info btn-sm">View Album</router-link>
+          <router-link :to="'/album-songs/' + album.id" class="btn btn-outline-info btn-sm">View Album</router-link>
         </div>
       </div>
     </div>

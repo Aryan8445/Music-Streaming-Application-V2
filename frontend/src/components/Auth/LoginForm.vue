@@ -80,6 +80,7 @@ export default {
         localStorage.setItem('access_token', access_token)
         localStorage.setItem('user_type', user_type)
         localStorage.setItem('expires_at', expires_at)
+        localStorage.setItem('email', this.email)
         // Redirect based on user type
         if (user_type === 'admin') {
           this.$router.push('/admin-dashboard');

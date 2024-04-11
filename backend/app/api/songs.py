@@ -24,7 +24,7 @@ song_fields = {
     'genre': fields.String,
     'file_path': fields.String,
     'lyrics': fields.String,
-    'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}")
+    'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}"),
 }
 
 
@@ -41,46 +41,71 @@ class SongUploadResource(Resource):
     @marshal_with(song_fields)
     @jwt_required()
     def post(self):
-        title = request.form['title']
-        release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%d')
-        genre = request.form['genre']
-        lyrics = request.form['lyrics']
+        try:
+            title = request.form['title']
+            release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%d')
+            genre = request.form['genre']
+            lyrics = request.form['lyrics']
 
-        current_user_email = get_jwt_identity()
-        current_user = User.query.filter_by(email=current_user_email).first()
+            current_user_email = get_jwt_identity()
+            current_user = User.query.filter_by(email=current_user_email).first()
 
-        if 'song_file' not in request.files:
-            return {'message': 'No file part'}, 400
-        
-        song_file = request.files['song_file']
-
-        if song_file.filename == '':
-            return {'message': 'No selected file'}, 400
-
-        if song_file:
-            filename = secure_filename(song_file.filename)
-
-            songs_dir = os.path.join(current_app.root_path, 'static', 'songs')
-            os.makedirs(songs_dir, exist_ok=True)
-            file_path = os.path.join(songs_dir, filename)
-            song_file.save(file_path)
-
-
+            if 'song_file' not in request.files:
+                return {'message': 'No file part'}, 400
             
-            new_song = Song(title=title, release_date=release_date, genre=genre, file_path=file_path, lyrics=lyrics, artist_id=current_user.id)
-            current_user.user_type = 'creator'
-            db.session.add(new_song)
-            db.session.commit()
+            song_file = request.files['song_file']
 
-            return new_song, 201
-        else:
-            return {'message': 'Invalid or missing song file'}, 400
+            if song_file.filename == '':
+                return {'message': 'No selected file'}, 400
+
+            if song_file:
+                # Generate a unique filename
+                filename = secure_filename(song_file.filename)
+                # Save the file to the designated folder
+                songs_dir = os.path.join(current_app.root_path, 'static', 'songs')
+                os.makedirs(songs_dir, exist_ok=True)
+                file_path = os.path.join(songs_dir, filename)
+                song_file.save(file_path)
+
+                # Construct the URL to access the file from the frontend
+                base_url = request.url_root.rstrip('/')
+                file_url = f"{base_url}/static/songs/{filename}"
+
+                # Create a new song record in the database
+                new_song = Song(
+                    title=title,
+                    release_date=release_date,
+                    genre=genre,
+                    file_path=file_url,  # Update file_path with the URL
+                    lyrics=lyrics,
+                    artist_id=current_user.id
+                )
+                current_user.user_type = 'creator'
+                db.session.add(new_song)
+                db.session.commit()
+
+                return new_song, 201
+            else:
+                return {'message': 'Invalid or missing song file'}, 400
+        except Exception as e:
+            return {'message': 'An error occurred while uploading the song'}, 500
 
 
 
 
 
 class SongResource(Resource):
+    @marshal_with(song_fields)
+    def get(self, song_id):
+        try:
+            song = Song.query.get(song_id)
+            if not song:
+                return {'message': 'Song not found'}, 404
+
+            return song, 200
+        except Exception as e:
+            return {'message': 'An error occurred while fetching the song'}, 500
+
     @jwt_required()
     @marshal_with(song_fields)
     def put(self, song_id):

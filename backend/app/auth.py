@@ -24,7 +24,8 @@ def login():
         return jsonify({
             'access_token': access_token,
             'user_type': 'user',
-            'expires_at': expires  
+            'expires_at': expires,
+            'email': user.email  
         }), 200
     elif admin and check_password_hash(admin.password, password):
         access_token = create_access_token(identity=email)
@@ -32,7 +33,8 @@ def login():
         return jsonify({
             'access_token': access_token,
             'user_type': 'admin',
-            'expires_at': expires  
+            'expires_at': expires,
+            'email': admin.email 
         }), 200
     elif creator and check_password_hash(creator.password, password):
         access_token = create_access_token(identity=email)
@@ -40,7 +42,8 @@ def login():
         return jsonify({
             'access_token': access_token,
             'user_type': 'creator',
-            'expires_at': expires  
+            'expires_at': expires,
+            'email': creator.email  
         }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401

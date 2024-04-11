@@ -45,17 +45,10 @@ class RatingResource(Resource):
             db.session.add(new_rating)
 
         db.session.commit()
+       
+        return {'message': 'Song rated successfully'}, 201
 
-        # Calculate average rating and total ratings for the song
-        ratings = Rating.query.filter_by(song_id=song_id).all()
-        total_ratings = len(ratings)
-        if total_ratings == 0:
-            return {'average_rating': 0.0, 'total_ratings': 0}
 
-        average_rating = sum([rating.value for rating in ratings]) / total_ratings
-        return {'average_rating': average_rating, 'total_ratings': total_ratings}, 201
-
-    @jwt_required()
     @marshal_with(rating_fields)
     def get(self, song_id):
         song = Song.query.get(song_id)
@@ -67,7 +60,7 @@ class RatingResource(Resource):
         if total_ratings == 0:
             return {'average_rating': 0.0, 'total_ratings': 0}
 
-        average_rating = sum([rating.value for rating in ratings]) / total_ratings
+        average_rating = round(sum([rating.value for rating in ratings]) / total_ratings, 2)
         return {'average_rating': average_rating, 'total_ratings': total_ratings}
 
 api.add_resource(RatingResource, '/songs/<int:song_id>/ratings')

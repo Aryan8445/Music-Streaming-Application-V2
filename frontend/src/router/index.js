@@ -19,6 +19,16 @@ const routes = [
     component: () => import('../components/Auth/SignupForm.vue'),
   },
   {
+    path: '/play/:id',
+    name: 'Play',
+    component: () => import('../components/Songs/PlaySong.vue'),
+  },
+  {
+    path: '/play/:id',
+    name: 'Play',
+    component: () => import('../components/Songs/PlaySong.vue'),
+  },
+  {
     path: '/user-profile',
     name: 'UserProfile',
     component: () => import('../components/Auth/UserProfile.vue'),

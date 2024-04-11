@@ -61,8 +61,16 @@ export default {
       selectedSong: null
     };
   },
+  computed: {
+    errorMessage() {
+      return this.$store.getters.errorMessage;
+    },
+    successMessage() {
+      return this.$store.getters.successMessage;
+    }
+  },
   methods: {
-    ...mapActions(['displaySuccessMessage', 'displayErrorMessage']),
+    ...mapActions(['displaySuccessMessage', 'displayErrorMessage', 'clearMessages']),
     async fetchPlaylist() {
       try {
         const playlistId = this.$route.params.id;
@@ -70,6 +78,7 @@ export default {
         const response = await axios.get(`http://127.0.0.1:5000/api/playlists/${playlistId}/songs`, { headers: { Authorization: `Bearer ${token}` } });
         this.playlist = response.data;
       } catch (error) {
+        this.displayErrorMessage('Error fetching playlist');
         console.error('Error fetching playlist:', error);
       }
     },
@@ -79,6 +88,7 @@ export default {
         const response = await axios.get('http://127.0.0.1:5000/api/songs', { headers: { Authorization: `Bearer ${token}` } });
         this.allSongs = response.data;
       } catch (error) {
+        this.displayErrorMessage('Error fetching all songs');
         console.error('Error fetching all songs:', error);
       }
     },
@@ -89,7 +99,9 @@ export default {
         const response = await axios.put(`http://127.0.0.1:5000/api/playlists/${playlistId}`, { title: this.newPlaylistName }, { headers: { Authorization: `Bearer ${token}` } });
         this.playlist = response.data;
         this.newPlaylistName = '';
+        this.displaySuccessMessage('Playlist name updated successfully');
       } catch (error) {
+        this.displayErrorMessage('Error updating playlist name');
         console.error('Error updating playlist name:', error);
       }
     },
@@ -99,7 +111,9 @@ export default {
         const token = localStorage.getItem('access_token');
         const response = await axios.delete(`http://127.0.0.1:5000/api/playlists/${playlistId}/delete-song/${songId}`, { headers: { Authorization: `Bearer ${token}` } });
         this.playlist = response.data;
+        this.displaySuccessMessage('Song removed from playlist successfully');
       } catch (error) {
+        this.displayErrorMessage('Error removing song from playlist');
         console.error('Error removing song from playlist:', error);
       }
     },
@@ -110,12 +124,15 @@ export default {
         const response = await axios.post(`http://127.0.0.1:5000/api/playlists/${playlistId}/add-song`, { song_id: this.selectedSong }, { headers: { Authorization: `Bearer ${token}` } });
         this.playlist = response.data;
         this.selectedSong = null;
+        this.displaySuccessMessage('Song added to playlist successfully');
       } catch (error) {
+        this.displayErrorMessage('Error adding song to playlist');
         console.error('Error adding song to playlist:', error);
       }
     }
   },
   mounted() {
+    this.clearMessages();
     this.fetchPlaylist();
     this.fetchAllSongs();
   },
