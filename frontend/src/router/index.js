@@ -24,9 +24,9 @@ const routes = [
     component: () => import('../components/Songs/PlaySong.vue'),
   },
   {
-    path: '/play/:id',
-    name: 'Play',
-    component: () => import('../components/Songs/PlaySong.vue'),
+    path: '/lyrics/:id',
+    name: 'Lyrics',
+    component: () => import('../components/Songs/ReadLyrics.vue'),
   },
   {
     path: '/user-profile',

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app
 from flask_restful import Resource, reqparse, marshal_with, fields, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import Song, User, db, Admin
+from app.models import Song, User, db, Admin,Rating
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
@@ -146,21 +146,39 @@ class SongResource(Resource):
 
             admin = Admin.query.filter_by(email=current_user_email).first()
             if admin:
+                # Delete associated ratings
+                Rating.query.filter_by(song_id=song_id).delete()
+                # Delete the song
                 db.session.delete(song)
                 db.session.commit()
-                return {'message': 'Song deleted successfully'}, 200
+                return {'message': 'Song and associated ratings deleted successfully'}, 200
 
             # Check if the current user is the artist of the song
             if song.artist != current_user:
                 return {'message': 'Unauthorized'}, 401
 
+            # Delete associated ratings
+            Rating.query.filter_by(song_id=song_id).delete()
+            # Delete the song
             db.session.delete(song)
             db.session.commit()
 
-            return {'message': 'Song deleted successfully'}, 200
+            return {'message': 'Song and associated ratings deleted successfully'}, 200
         except Exception as e:
             return {'message': 'An error occurred while deleting the song'}, 500
 
+class CreatorSongsResource(Resource):
+    @marshal_with(song_fields)
+    def get(self, creator_id):
+        try:
+            songs = Song.query.filter_by(artist_id=creator_id).all()
+            if not songs:
+                return {'message': 'No songs found for this creator'}, 404
+
+            return songs, 200
+        except Exception as e:
+            return {'message': 'An error occurred while fetching songs for this creator'}, 500
+api.add_resource(CreatorSongsResource, '/songs/creator/<int:creator_id>')
 api.add_resource(SongListResource, '/songs')
 api.add_resource(SongUploadResource, '/songs/upload')
 api.add_resource(SongResource, '/songs/<int:song_id>')

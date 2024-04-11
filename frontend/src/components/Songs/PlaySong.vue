@@ -15,23 +15,30 @@
       </div>
     </div>
 
-    <div class="rating-section">
-      <div class="rating-input">
-        <label for="rating">Rate this song:</label>
-        <select id="rating" v-model="userRating" @change="rateSong">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-        <span v-if="message" class="message">{{ message }}</span>
-      </div>
-
-      <div class="rating-info" v-if="averageRating !== null">
-        <p>Average Rating: {{ averageRating }}/5</p>
-      </div>
-    </div>
+    <div class="rating-section" v-if="isAuthenticated">
+          <div class="rating-input">
+            <label for="rating" class="form-label">Rate this song:</label>
+            <select id="rating" class="form-select" v-model="userRating" @change="rateSong">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+            <span v-if="message" class="message">{{ message }}</span>
+          </div>
+  
+          <div class="rating-info" v-if="averageRating !== null">
+            <p>Average Rating: {{ averageRating }}/5.00</p>
+          </div>
+        </div>
+  
+        <div v-else>
+          <div class="rating-info" v-if="averageRating !== null">
+            <p>Average Rating: {{ averageRating }}/5.00</p>
+          </div>
+          <p>Please log in to rate this song. <router-link to="/login" class="btn btn-primary">Login</router-link></p>
+        </div>
   </div>
 </template>
 
@@ -52,8 +59,15 @@ export default {
       averageRating: null,
       totalRatings: null,
       message: '',
+      isLoggedIn: false
     };
   },
+  computed: {
+      isAuthenticated() {
+        return localStorage.getItem('access_token') !== null;
+      },
+    },
+
   methods: {
     fetchSong() {
       const songId = this.$route.params.id;
