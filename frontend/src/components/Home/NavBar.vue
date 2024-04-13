@@ -15,16 +15,16 @@
             <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/admin-dashboard">Dashboard</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all_songs">Songs</router-link>
+            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all-songs">Songs</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all_albums">Albums</router-link>
+            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all-albums">Albums</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all_albums">Users</router-link>
+            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all-users">Users</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all_albums">Creators</router-link>
+            <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all-creators">Creators</router-link>
           </li>
           
           <li class="nav-item">

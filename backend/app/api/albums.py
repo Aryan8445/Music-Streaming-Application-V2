@@ -126,20 +126,23 @@ class AlbumResource(Resource):
     def delete(self, album_id):
         try:
             current_user_email = get_jwt_identity()
-            current_user = User.query.filter_by(
-                email=current_user_email).first()
-            if not current_user:
-                return {'message': 'User not found'}, 404
-
             album = Album.query.get(album_id)
             if not album:
                 return {'message': 'Album not found'}, 404
-
+            
             admin = Admin.query.filter_by(email=current_user_email).first()
             if admin:
                 db.session.delete(album)
                 db.session.commit()
                 return {'message': 'Album deleted successfully'}, 200
+            
+            current_user = User.query.filter_by(
+                email=current_user_email).first()
+            if not current_user:
+                return {'message': 'User not found'}, 404
+
+            
+
 
             elif current_user.user_type == "creator" and album.artist_id != current_user.id:
                 return {'message': 'Unauthorized'}, 401

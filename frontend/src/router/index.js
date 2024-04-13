@@ -87,6 +87,30 @@ const routes = [
     component: () => import('../components/Auth/AdminDashboard.vue'), 
     meta: { requiresAuth: true, isAdmin: true } // Protected route for admin only
   },
+  {
+    path: '/all-songs',
+    name: 'AllSongs',
+    component: () => import('../components/Songs/AllSongs.vue'), 
+    meta: { requiresAuth: true, isAdmin: true } // Protected route for admin only
+  },
+  {
+    path: '/all-albums',
+    name: 'AllAlbums',
+    component: () => import('../components/Albums/AllAlbums.vue'), 
+    meta: { requiresAuth: true, isAdmin: true } // Protected route for admin only
+  },
+  {
+    path: '/all-users',
+    name: 'AllUsers',
+    component: () => import('../components/Auth/AllUsers.vue'), 
+    meta: { requiresAuth: true, isAdmin: true } // Protected route for admin only
+  },
+  {
+    path: '/all-creators',
+    name: 'AllCreators',
+    component: () => import('../components/Auth/AllCreators.vue'), 
+    meta: { requiresAuth: true, isAdmin: true } // Protected route for admin only
+  },
 ];
 
 const router = createRouter({

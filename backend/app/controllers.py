@@ -117,7 +117,119 @@ class AdminDashboardResource(Resource):
         except Exception as e:
             return {'error': str(e)}, 500
 
+class CreatorListResource(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            # Fetch all users with user type 'creator'
+            creators = User.query.filter_by(user_type='creator').all()
 
+            # Prepare the response data
+            response_data = {
+                'creators': [{
+                    'id': creator.id,
+                    'firstname': creator.firstname,
+                    'lastname': creator.lastname,
+                    'email': creator.email,
+                    'is_blacklisted': creator.is_blacklisted,
+                } for creator in creators]
+            }
+
+            return response_data, 200
+
+        except Exception as e:
+            return {'error': str(e)}, 500
+
+class UserListResource(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            # Fetch all users with user type 'user'
+            users = User.query.filter_by(user_type='user').all()
+
+            # Prepare the response data
+            response_data = {
+                'users': [{
+                    'id': user.id,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
+                    'email': user.email,
+                    'is_blacklisted': user.is_blacklisted,
+                } for user in users]
+            }
+
+            return response_data, 200
+
+        except Exception as e:
+            return {'error': str(e)}, 500
+
+class BlacklistUserResource(Resource):
+    @jwt_required()
+    def post(self, user_id):
+        try:
+            # Get the email of the current user from JWT identity
+            current_user_email = get_jwt_identity()
+
+            # Find the admin based on the email
+            admin = Admin.query.filter_by(email=current_user_email).first()
+
+            if not admin:
+                return {'message': 'Admin not found'}, 404
+
+            # Find the user to be blacklisted/whitelisted
+            user = User.query.get(user_id)
+
+            if not user:
+                return {'message': 'User not found'}, 404
+
+            # Check if the user is already blacklisted
+            if user.is_blacklisted:
+                return {'message': 'User is already blacklisted'}, 400
+
+            # Blacklist the user
+            user.is_blacklisted = True
+            db.session.commit()
+
+            return {'message': 'User blacklisted successfully'}, 200
+
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
+
+    @jwt_required()
+    def delete(self, user_id):
+        try:
+            # Get the email of the current user from JWT identity
+            current_user_email = get_jwt_identity()
+
+            # Find the admin based on the email
+            admin = Admin.query.filter_by(email=current_user_email).first()
+
+            if not admin:
+                return {'message': 'Admin not found'}, 404
+
+            # Find the user to be removed from blacklist
+            user = User.query.get(user_id)
+
+            if not user:
+                return {'message': 'User not found'}, 404
+
+            # Check if the user is not blacklisted
+            if not user.is_blacklisted:
+                return {'message': 'User is not blacklisted'}, 400
+
+            # Remove the user from blacklist
+            user.is_blacklisted = False
+            db.session.commit()
+
+            return {'message': 'User removed from blacklist successfully'}, 200
+
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
+
+api.add_resource(BlacklistUserResource, '/users/<int:user_id>/blacklist')
 api.add_resource(CreatorDashboardResource, '/creator-dashboard')
 api.add_resource(AdminDashboardResource, '/admin-dashboard')
-
+api.add_resource(CreatorListResource, '/creators')
+api.add_resource(UserListResource, '/users')

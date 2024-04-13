@@ -3,11 +3,11 @@
     <div v-if="errorMessage || successMessage" class="message-container">
       <div v-if="errorMessage" class="alert alert-danger" role="alert">
         <span>{{ errorMessage }}</span>
-        <button @click="clearMessages" class="close-btn">×</button>
+        <button @click="clearMessages" class="close-btn">X</button>
       </div>
       <div v-if="successMessage" class="alert alert-success" role="alert">
         <span>{{ successMessage }}</span>
-        <button @click="clearMessages" class="close-btn">×</button>
+        <button @click="clearMessages" class="close-btn">X</button>
       </div>
     </div>
   </transition>
