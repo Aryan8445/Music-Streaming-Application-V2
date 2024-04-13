@@ -1,10 +1,9 @@
-from flask import jsonify, Blueprint, request
+from flask import Blueprint, request
 from flask_restful import Resource, Api, reqparse, fields, marshal_with
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 from app.models import Album, User, Song, db, Admin
 from functools import wraps
-
 
 api_bp = Blueprint('Album_api', __name__)
 api = Api(api_bp)
@@ -13,7 +12,7 @@ album_fields = {
     'id': fields.Integer,
     'title': fields.String,
     'artist_id': fields.Integer,
-    'artist_email':fields.String(attribute=lambda x: x.artist.email),
+    'artist_email': fields.String(attribute=lambda x: x.artist.email),
     'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}"),
     'songs': fields.List(fields.Nested({
         'id': fields.Integer,
@@ -26,7 +25,6 @@ album_fields = {
         'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}")
     }))
 }
-
 
 def creator_or_admin_required(fn):
     @wraps(fn)
@@ -44,7 +42,6 @@ def creator_or_admin_required(fn):
 
     return wrapper
 
-
 class AlbumListResource(Resource):
     @marshal_with(album_fields)
     def get(self):
@@ -53,7 +50,7 @@ class AlbumListResource(Resource):
             return albums
 
         except SQLAlchemyError:
-            return jsonify({'message': 'An error occurred while fetching albums'}), 500
+            return {'message': 'An error occurred while fetching albums'}, 500
 
     @jwt_required()
     @marshal_with(album_fields)
@@ -68,7 +65,7 @@ class AlbumListResource(Resource):
             current_user = User.query.filter_by(
                 email=current_user_email).first()
             if not current_user:
-                return jsonify({'message': 'User not found'}), 404
+                return {'message': 'User not found'}, 404
 
             new_album = Album(title=title, artist_id=current_user.id)
 
@@ -83,8 +80,7 @@ class AlbumListResource(Resource):
             return new_album, 201
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({'message': 'An error occurred while creating an album'}), 500
-
+            return {'message': 'An error occurred while creating an album'}, 500
 
 class AlbumResource(Resource):
     @jwt_required()
@@ -93,10 +89,10 @@ class AlbumResource(Resource):
         try:
             album = Album.query.get(album_id)
             if not album:
-                return jsonify({'message': 'Album not found'}), 404
+                return {'message': 'Album not found'}, 404
             return album, 200
         except SQLAlchemyError:
-            return jsonify({'message': 'An error occurred while fetching the album'}), 500
+            return {'message': 'An error occurred while fetching the album'}, 500
 
     @jwt_required()
     @marshal_with(album_fields)
@@ -110,12 +106,12 @@ class AlbumResource(Resource):
             current_user = User.query.filter_by(
                 email=current_user_email).first()
             if not current_user:
-                return jsonify({'message': 'User not found'}), 404
+                return {'message': 'User not found'}, 404
 
             album = Album.query.filter_by(
                 id=album_id, artist_id=current_user.id).first()
             if not album:
-                return jsonify({'message': 'Album not found'}), 404
+                return {'message': 'Album not found'}, 404
 
             album.title = new_title
             db.session.commit()
@@ -123,10 +119,9 @@ class AlbumResource(Resource):
             return album, 200
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({'message': 'An error occurred while updating the album'}), 500
+            return {'message': 'An error occurred while updating the album'}, 500
 
     @jwt_required()
-    @marshal_with(album_fields)
     @creator_or_admin_required
     def delete(self, album_id):
         try:
@@ -134,11 +129,11 @@ class AlbumResource(Resource):
             current_user = User.query.filter_by(
                 email=current_user_email).first()
             if not current_user:
-                return jsonify({'message': 'User not found'}), 404
+                return {'message': 'User not found'}, 404
 
             album = Album.query.get(album_id)
             if not album:
-                return jsonify({'message': 'Album not found'}), 404
+                return {'message': 'Album not found'}, 404
 
             admin = Admin.query.filter_by(email=current_user_email).first()
             if admin:
@@ -147,15 +142,14 @@ class AlbumResource(Resource):
                 return {'message': 'Album deleted successfully'}, 200
 
             elif current_user.user_type == "creator" and album.artist_id != current_user.id:
-                return jsonify({'message': 'Unauthorized'}), 401
+                return {'message': 'Unauthorized'}, 401
             else:
                 db.session.delete(album)
                 db.session.commit()
                 return {'message': 'Album deleted successfully'}, 200
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({'message': 'An error occurred while deleting the album'}), 500
-
+            return {'message': 'An error occurred while deleting the album'}, 500
 
 class AlbumAddSongResource(Resource):
     @jwt_required()
@@ -168,14 +162,14 @@ class AlbumAddSongResource(Resource):
                 email=current_user_email).first()
             if not current_user:
                 return {'message': 'User not found'}, 404
-            
+
             album = Album.query.get(album_id)
             if not album:
-                return jsonify({'message': 'Album not found'}), 404
-            
+                return {'message': 'Album not found'}, 404
+
             # Check if the current user is the creator of the album
             if album.artist_id != current_user.id:
-                return jsonify({'message': 'Unauthorized'}), 401
+                return {'message': 'Unauthorized'}, 401
 
             data = request.get_json()
             song_id = data.get('song_id')
@@ -191,8 +185,6 @@ class AlbumAddSongResource(Resource):
             db.session.rollback()
             return {'message': 'An error occurred while adding a song to the album'}, 500
 
-
-
 class AlbumDeleteSongResource(Resource):
     @jwt_required()
     @marshal_with(album_fields)
@@ -203,22 +195,22 @@ class AlbumDeleteSongResource(Resource):
             current_user = User.query.filter_by(
                 email=current_user_email).first()
             if not current_user:
-                return jsonify({'message': 'User not found'}), 404
-            
+                return {'message': 'User not found'}, 404
+
             album = Album.query.get(album_id)
             if not album:
-                return jsonify({'message': 'Album not found'}), 404
-            
+                return {'message': 'Album not found'}, 404
+
             # Check if the current user is the creator of the album
             if album.artist_id != current_user.id:
-                return jsonify({'message': 'Unauthorized'}), 401
+                return {'message': 'Unauthorized'}, 401
 
             song = Song.query.get(song_id)
             if not song:
-                return jsonify({'message': 'Song not found'}), 404
+                return {'message': 'Song not found'}, 404
 
             if song not in album.songs:
-                return jsonify({'message': 'Song not in album'}), 404
+                return {'message': 'Song not in album'}, 404
 
             album.songs.remove(song)
             db.session.commit()
@@ -226,12 +218,7 @@ class AlbumDeleteSongResource(Resource):
             return album, 200
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({'message': 'An error occurred while deleting the song from the album'}), 500
-
-
-
-
-
+            return {'message': 'An error occurred while deleting the song from the album'}, 500
 
 api.add_resource(AlbumListResource, '/albums')
 api.add_resource(AlbumResource, '/albums/<int:album_id>')

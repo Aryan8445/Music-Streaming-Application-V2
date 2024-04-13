@@ -6,7 +6,7 @@
     <div class="container mt-5">
       <div class="row justify-content-center">
         <div class="col-md-8">
-          <div class="p-4 border rounded bg-light">
+          <div class="p-4 border rounded bg-light shadow">
             <h3 class="text-center mb-4">Create Album</h3>
 
             <form @submit.prevent="createAlbum">

@@ -167,18 +167,7 @@ class SongResource(Resource):
         except Exception as e:
             return {'message': 'An error occurred while deleting the song'}, 500
 
-class CreatorSongsResource(Resource):
-    @marshal_with(song_fields)
-    def get(self, creator_id):
-        try:
-            songs = Song.query.filter_by(artist_id=creator_id).all()
-            if not songs:
-                return {'message': 'No songs found for this creator'}, 404
 
-            return songs, 200
-        except Exception as e:
-            return {'message': 'An error occurred while fetching songs for this creator'}, 500
-api.add_resource(CreatorSongsResource, '/songs/creator/<int:creator_id>')
 api.add_resource(SongListResource, '/songs')
 api.add_resource(SongUploadResource, '/songs/upload')
 api.add_resource(SongResource, '/songs/<int:song_id>')

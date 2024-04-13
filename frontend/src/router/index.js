@@ -29,6 +29,11 @@ const routes = [
     component: () => import('../components/Songs/ReadLyrics.vue'),
   },
   {
+    path: '/search',
+    name: 'SearchResults',
+    component: () => import('../components/Home/SearchResults.vue'),
+  },
+  {
     path: '/user-profile',
     name: 'UserProfile',
     component: () => import('../components/Auth/UserProfile.vue'),
@@ -38,6 +43,12 @@ const routes = [
     path: '/upload-song',
     name: 'UploadSong',
     component: () => import('../components/Songs/UploadSong.vue'),
+    meta: { requiresAuth: true} // Protected route, requires authentication
+  },
+  {
+    path: '/update-song/:id',
+    name: 'UpdateSong',
+    component: () => import('../components/Songs/UpdateSong.vue'),
     meta: { requiresAuth: true} // Protected route, requires authentication
   },
   {

@@ -44,9 +44,10 @@
       <!-- Playlist section -->
       <div v-if="isLoggedIn() && playlists.length > 0">
 
+        
         <h2 class="mt-4 d-flex justify-content-between align-items-center">Your Playlists
           <span><router-link to="/create-playlist" style="border-radius: 20px; width: 120px;"
-              class="btn btn-outline-info btn-sm">Create Playlist</router-link></span>
+              class="btn btn-outline-info btn-sm mb-1 me-6">Create Playlist</router-link></span>
 
           <div class="pagination">
             <button class="btn btn-icon mr-2" @click="previousPagePlaylists" :disabled="currentPagePlaylists === 1"
@@ -209,11 +210,13 @@ export default {
 
           this.playlists = this.playlists.filter(playlist => playlist.id !== playlistId);
           this.totalPlaylists--;
+          this.$store.dispatch('displaySuccessMessage', 'Playlist deleted successfully');
         } else {
           console.log('Access token not found.');
         }
       } catch (error) {
         console.error('Error deleting playlist:', error);
+        this.$store.dispatch('displayErrorMessage', 'Error deleting Playlist!');
       }
     }
   }

@@ -6,7 +6,7 @@
     <div class="container mt-5">
       <div class="row justify-content-center">
         <div class="col-md-6">
-          <div class="p-4 border rounded bg-light">
+          <div class="p-4 upload-song-form border rounded bg-light shadow">
             <h3 class="text-center mb-4">Upload a New Song</h3>
 
             <div class="mb-3">
@@ -27,7 +27,8 @@
             </div>
             <div class="mb-3">
               <label for="song_file" class="form-label h5">Upload Song File (MP3, WAV, etc.):</label>
-              <input type="file" class="form-control" id="song_file" @change="handleFileUpload" accept=".mp3, .wav" required>
+              <input type="file" class="form-control" id="song_file" @change="handleFileUpload" accept=".mp3, .wav"
+                required>
             </div>
 
             <div class="d-grid gap-2 col-6 mx-auto">
@@ -77,19 +78,15 @@ export default {
           },
         });
 
-        // Display success message
-
-        
-        // Fetch user details and update user_type in localStorage
         await this.fetchUserDetails();
 
-        // Clear success message after 3 seconds and redirect to home route
 
-          this.$router.push('/');
+
+        this.$router.push('/');
 
         this.displaySuccessMessage('Song uploaded successfully');
       } catch (error) {
-        // Display error message
+
         this.displayErrorMessage('Error uploading song: ' + error.response.data.message);
       }
     },
@@ -112,12 +109,15 @@ export default {
     },
   },
   created() {
-    // Fetch user details when the component is created
+
     this.fetchUserDetails();
   },
 };
 </script>
 
 <style scoped>
-/* Add custom styles if needed */
+.upload-song-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
 </style>
