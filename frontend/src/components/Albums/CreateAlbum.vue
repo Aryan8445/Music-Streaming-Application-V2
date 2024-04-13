@@ -78,7 +78,7 @@ export default {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-
+        this.$router.push('/')
         this.displaySuccessMessage('Album created successfully');
         // Reset form fields
         this.albumTitle = '';

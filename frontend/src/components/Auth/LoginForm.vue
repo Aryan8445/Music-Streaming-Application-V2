@@ -92,13 +92,20 @@ export default {
         this.$store.dispatch('displaySuccessMessage', 'Login successful');
       } catch (error) {
         console.error('Login failed:', error.message);
-        // Set error message using Vuex
-        this.$store.dispatch('displayErrorMessage', error.response.data.message || 'Login failed');
+        // Check if the error response status is 403 (Forbidden)
+        if (error.response && error.response.status === 403) {
+          // Handle the case where the user is blacklisted
+          this.$store.dispatch('displayErrorMessage', 'You are blacklisted. Please contact admin for assistance.');
+        } else {
+          // Set error message using Vuex for other error cases
+          this.$store.dispatch('displayErrorMessage', error.response.data.message || 'Login failed');
+        }
       }
     }
   }
 };
 </script>
+
 
 <style scoped>
 .login-form {

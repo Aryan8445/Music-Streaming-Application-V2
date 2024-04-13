@@ -28,10 +28,10 @@
                     <p class="mb-0 text-muted">{{ song.artist }}</p>
                   </div>
                   <div>
-                    <button @click="playSong(song.id)" class="btn btn-primary">Play Song</button>
-                    <button @click="readLyrics(song.id)" class="btn btn-info">Read Lyrics</button>
+                    <router-link :to="'/play/' + song.id" class="btn btn-outline-success mx-2 btn-sm">Play Song</router-link>
+                    <router-link :to="'/lyrics/' + song.id" class="btn btn-outline-info mx-2 btn-sm">Read Lyrics</router-link>
                     <div v-if="isCurrentUserArtist">
-                      <button @click="removeSongFromAlbum(song.id)" class="btn btn-danger ml-2">Remove</button>
+                      <button @click="removeSongFromAlbum(song.id)" class="btn btn-outline-danger btn-sm mx-2">Remove</button>
                     </div>
                   </div>
                 </li>
@@ -80,17 +80,14 @@ export default {
       const currentUserEmail = localStorage.getItem('email');
       return this.album.artist_email === currentUserEmail;
     },
-    errorMessage() {
-      return this.$store.getters.errorMessage;
-    },
   },
   methods: {
     ...mapActions(['displaySuccessMessage', 'displayErrorMessage', 'clearMessages']),
     async fetchAlbum() {
       try {
         const albumId = this.$route.params.id;
-        const token = localStorage.getItem('access_token');
-        const response = await axios.get(`http://127.0.0.1:5000/api/albums/${albumId}`, { headers: { Authorization: `Bearer ${token}` } });
+
+        const response = await axios.get(`http://127.0.0.1:5000/api/albums/${albumId}`);
         this.album = response.data;
       } catch (error) {
         this.displayErrorMessage('Error fetching album');
@@ -99,8 +96,7 @@ export default {
     },
     async fetchAllSongs() {
       try {
-        const token = localStorage.getItem('access_token');
-        const response = await axios.get('http://127.0.0.1:5000/api/songs', { headers: { Authorization: `Bearer ${token}` } });
+        const response = await axios.get('http://127.0.0.1:5000/api/songs');
         this.allSongs = response.data;
       } catch (error) {
         this.displayErrorMessage('Error fetching songs');
@@ -141,16 +137,9 @@ export default {
         this.selectedSong = null;
         this.displaySuccessMessage('Song added to album successfully');
       } catch (error) {
-        this.displayErrorMessage('Error adding song to album');
         console.error('Error adding song to album:', error);
       }
     },
-    playSong(songId) {
-      // Implement play song functionality
-    },
-    readLyrics(songId) {
-      // Implement read lyrics functionality
-    }
   },
   mounted() {
     this.clearMessages();

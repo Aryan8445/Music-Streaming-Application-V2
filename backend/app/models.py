@@ -13,8 +13,8 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     user_type = db.Column(db.String(80), nullable=False)
     is_blacklisted = db.Column(db.Boolean, default=False)
-    # registration_date = db.Column(
-    #     db.DateTime(timezone=True), default=func.now())
+    registration_date = db.Column(
+        db.DateTime(timezone=True), default=func.now())
     songs = relationship('Song', back_populates='artist', lazy=True)
     albums = relationship('Album', back_populates='artist', lazy=True)
     ratings = relationship('Rating', back_populates='user', lazy=True)
@@ -28,6 +28,8 @@ class Admin(db.Model):
     name = db.Column(db.String,  nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    registration_date = db.Column(
+        db.DateTime(timezone=True), default=func.now())
     
 class Song(db.Model):
     __tablename__ = 'song'

@@ -83,7 +83,7 @@ class AlbumListResource(Resource):
             return {'message': 'An error occurred while creating an album'}, 500
 
 class AlbumResource(Resource):
-    @jwt_required()
+
     @marshal_with(album_fields)
     def get(self, album_id):
         try:

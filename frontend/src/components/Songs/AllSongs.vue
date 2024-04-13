@@ -33,8 +33,9 @@
               <td class="text-end">
                 <!-- Delete button -->
                 <button class="btn btn-outline-danger btn-sm mx-2" @click="deleteSong(song.id)">Delete Song</button>
-                <!-- Flag button -->
-                <button class="btn btn-outline-info btn-sm mx-2" @click="flagSong(song.id)">Flag Song</button>
+                <!-- Flag or Unflag button -->
+                <button v-if="!song.is_flagged" class="btn btn-outline-info btn-sm mx-2" @click="flagSong(song.id)">Flag Song</button>
+                <button v-if="song.is_flagged" class="btn btn-outline-secondary btn-sm mx-2" @click="unflagSong(song.id)">Unflag Song</button>
               </td>
             </tr>
           </tbody>
@@ -100,7 +101,46 @@ export default {
       });
     },
     flagSong(songId) {
-      // Implement flag song functionality if needed
+      const accessToken = localStorage.getItem('access_token');
+      axios.post(`http://127.0.0.1:5000/api/songs/${songId}/flag`, {}, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then(response => {
+        // Update the song's flag status
+        const updatedSong = this.songs.find(song => song.id === songId);
+        if (updatedSong) {
+          updatedSong.is_flagged = true;
+        }
+        console.log('Song flagged successfully:', response.data);
+        this.$store.dispatch('displaySuccessMessage', 'Song flagged successfully');
+      })
+      .catch(error => {
+        console.error('Error flagging song:', error);
+        this.$store.dispatch('displayErrorMessage', 'Error flagging song');
+      });
+    },
+    unflagSong(songId) {
+      const accessToken = localStorage.getItem('access_token');
+      axios.delete(`http://127.0.0.1:5000/api/songs/${songId}/flag`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then(response => {
+        // Update the song's flag status
+        const updatedSong = this.songs.find(song => song.id === songId);
+        if (updatedSong) {
+          updatedSong.is_flagged = false;
+        }
+        console.log('Song unflagged successfully:', response.data);
+        this.$store.dispatch('displaySuccessMessage', 'Song unflagged successfully');
+      })
+      .catch(error => {
+        console.error('Error unflagging song:', error);
+        this.$store.dispatch('displayErrorMessage', 'Error unflagging song');
+      });
     },
   },
 };

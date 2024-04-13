@@ -72,8 +72,7 @@ const routes = [
   {
     path: '/album-songs/:id',
     name: 'AlbumSongs',
-    component: () => import('../components/Albums/AlbumSongs.vue'),
-    meta: { requiresAuth: true, isCreator: true} // Protected route, requires authentication
+    component: () => import('../components/Albums/AlbumSongs.vue'), 
   },
   {
     path: '/creator-dashboard',

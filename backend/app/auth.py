@@ -19,6 +19,8 @@ def login():
     admin = Admin.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password, password):
+        if user.is_blacklisted:
+            return jsonify({'message': 'User is blacklisted. Contact admin for assistance.'}), 403
         access_token = create_access_token(identity=email)
         expires = datetime.utcnow() + timedelta(hours=24)  
         return jsonify({
@@ -37,6 +39,8 @@ def login():
             'email': admin.email 
         }), 200
     elif creator and check_password_hash(creator.password, password):
+        if creator.is_blacklisted:
+            return jsonify({'message': 'Creator is blacklisted. Contact admin for assistance.'}), 403
         access_token = create_access_token(identity=email)
         expires = datetime.utcnow() + timedelta(hours=24)  
         return jsonify({

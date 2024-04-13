@@ -25,6 +25,7 @@ song_fields = {
     'file_path': fields.String,
     'lyrics': fields.String,
     'artist': fields.String(attribute=lambda x: f"{x.artist.firstname} {x.artist.lastname}"),
+    'is_flagged': fields.Boolean(attribute=lambda x: x.is_flagged),
 }
 
 

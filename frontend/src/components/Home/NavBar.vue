@@ -70,9 +70,10 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('clearMessages');
-      localStorage.removeItem('access_token', null)
-      localStorage.removeItem('user_type', null)
-      localStorage.removeItem('expires_at', null)
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('user_type')
+      localStorage.removeItem('expires_at')
+      localStorage.removeItem('email')
       window.location.reload();
       this.$router.push('/');
     },

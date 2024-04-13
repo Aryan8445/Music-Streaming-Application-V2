@@ -20,9 +20,9 @@
                 <li v-for="song in playlist.songs" :key="song.id" class="list-group-item d-flex justify-content-between align-items-center">
                   {{ song.title }} - {{ song.artist }}
                   <div>
-                    <!-- <router-link  class="btn btn-dark mx-2">Read Lyrics</router-link> -->
-                    <!-- <router-link  class="btn btn-success mx-2">Play Song</router-link> -->
-                    <button @click="removeSongFromPlaylist(song.id)" class="btn btn-danger mx-2">Remove</button>
+                    <router-link :to="'/play/' + song.id" class="btn btn-outline-success mx-2 btn-sm">Play Song</router-link>
+                    <router-link :to="'/lyrics/' + song.id" class="btn btn-outline-info mx-2 btn-sm">Read Lyrics</router-link>
+                    <button @click="removeSongFromPlaylist(song.id)" class="btn btn-outline-danger btn-sm mx-2">Remove</button>
                   </div>
                 </li>
               </ul>

@@ -228,8 +228,75 @@ class BlacklistUserResource(Resource):
             db.session.rollback()
             return {'error': str(e)}, 500
 
+class FlagSongResource(Resource):
+    @jwt_required()
+    def post(self, song_id):
+        try:
+            # Get the email of the current user from JWT identity
+            current_user_email = get_jwt_identity()
+
+            # Find the admin based on the email
+            admin = Admin.query.filter_by(email=current_user_email).first()
+
+            if not admin:
+                return {'message': 'Admin not found'}, 404
+
+            # Find the song to be flagged
+            song = Song.query.get(song_id)
+
+            if not song:
+                return {'message': 'Song not found'}, 404
+
+            # Check if the song is already flagged
+            if song.is_flagged:
+                return {'message': 'Song is already flagged'}, 400
+
+            # Flag the song
+            song.is_flagged = True
+            db.session.commit()
+
+            return {'message': 'Song flagged successfully'}, 200
+
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
+
+    @jwt_required()
+    def delete(self, song_id):
+        try:
+            # Get the email of the current user from JWT identity
+            current_user_email = get_jwt_identity()
+
+            # Find the admin based on the email
+            admin = Admin.query.filter_by(email=current_user_email).first()
+
+            if not admin:
+                return {'message': 'Admin not found'}, 404
+
+            # Find the song to be unflagged
+            song = Song.query.get(song_id)
+
+            if not song:
+                return {'message': 'Song not found'}, 404
+
+            # Check if the song is not flagged
+            if not song.is_flagged:
+                return {'message': 'Song is not flagged'}, 400
+
+            # Unflag the song
+            song.is_flagged = False
+            db.session.commit()
+
+            return {'message': 'Song unflagged successfully'}, 200
+
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
+
+
 api.add_resource(BlacklistUserResource, '/users/<int:user_id>/blacklist')
 api.add_resource(CreatorDashboardResource, '/creator-dashboard')
+api.add_resource(FlagSongResource, '/songs/<int:song_id>/flag')
 api.add_resource(AdminDashboardResource, '/admin-dashboard')
 api.add_resource(CreatorListResource, '/creators')
 api.add_resource(UserListResource, '/users')
