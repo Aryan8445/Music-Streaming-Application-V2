@@ -10,9 +10,7 @@ import io
 controllers = Blueprint('controllers',__name__)
 api = Api(controllers)
 
-@controllers.route('/', methods=['GET'])
-def index():
-    return "success", 200
+
 
 
 song_fields = {
@@ -300,3 +298,6 @@ api.add_resource(FlagSongResource, '/songs/<int:song_id>/flag')
 api.add_resource(AdminDashboardResource, '/admin-dashboard')
 api.add_resource(CreatorListResource, '/creators')
 api.add_resource(UserListResource, '/users')
+
+
+

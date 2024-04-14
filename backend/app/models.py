@@ -13,6 +13,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     user_type = db.Column(db.String(80), nullable=False)
     is_blacklisted = db.Column(db.Boolean, default=False)
+    last_visit = db.Column(db.DateTime(timezone=True))
     registration_date = db.Column(
         db.DateTime(timezone=True), default=func.now())
     songs = relationship('Song', back_populates='artist', lazy=True)
@@ -24,6 +25,7 @@ class User(db.Model):
         db.session.commit()
     
 class Admin(db.Model):
+    __tablename__ = 'admin'
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
     name = db.Column(db.String,  nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)

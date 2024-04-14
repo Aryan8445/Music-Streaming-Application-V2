@@ -2,11 +2,19 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, Admin
+from app.models import User, Admin, db
+from datetime import datetime, timedelta
+from pytz import timezone
+from app.tasks import say_hello
+
 
 auth = Blueprint('auth', __name__)
+IST = timezone('Asia/Kolkata') 
 
-from datetime import datetime, timedelta
+@auth.route('/', methods=['GET'])
+def index():
+    return "success", 200
+
 
 @auth.route('/login', methods=['POST'])
 def login():
@@ -22,32 +30,40 @@ def login():
         if user.is_blacklisted:
             return jsonify({'message': 'User is blacklisted. Contact admin for assistance.'}), 403
         access_token = create_access_token(identity=email)
-        expires = datetime.utcnow() + timedelta(hours=24)  
+        expires = datetime.utcnow() + timedelta(hours=24)
+        login_time = datetime.now(IST)  # Current IST time
+        user.last_visit = login_time  # Update last visit time
+        db.session.commit()  # Commit changes to the database
         return jsonify({
             'access_token': access_token,
             'user_type': 'user',
             'expires_at': expires,
-            'email': user.email  
+            'email': user.email,
+            'last_visit': login_time.strftime('%Y-%m-%d %H:%M:%S')  # Format last visit time
         }), 200
     elif admin and check_password_hash(admin.password, password):
         access_token = create_access_token(identity=email)
-        expires = datetime.utcnow() + timedelta(hours=24)  
+        expires = datetime.utcnow() + timedelta(hours=24)
         return jsonify({
             'access_token': access_token,
             'user_type': 'admin',
             'expires_at': expires,
-            'email': admin.email 
+            'email': admin.email
         }), 200
     elif creator and check_password_hash(creator.password, password):
         if creator.is_blacklisted:
             return jsonify({'message': 'Creator is blacklisted. Contact admin for assistance.'}), 403
         access_token = create_access_token(identity=email)
-        expires = datetime.utcnow() + timedelta(hours=24)  
+        expires = datetime.utcnow() + timedelta(hours=24)
+        login_time = datetime.now(IST)  # Current IST time
+        creator.last_visit = login_time  # Update last visit time
+        db.session.commit()  # Commit changes to the database
         return jsonify({
             'access_token': access_token,
             'user_type': 'creator',
             'expires_at': expires,
-            'email': creator.email  
+            'email': creator.email,
+            'last_visit': login_time.strftime('%Y-%m-%d %H:%M:%S')  # Format last visit time
         }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
@@ -119,3 +135,9 @@ def protected():
         return jsonify(logged_in_as=current_user), 200
     else:
         return jsonify({'message': 'Unauthorized'}), 401
+    
+
+@auth.route('/hello')
+def hello():
+    res = say_hello.delay()
+    return jsonify({'taskid': res.id})
