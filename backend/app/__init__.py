@@ -7,7 +7,7 @@ from flask_jwt_extended import JWTManager
 from app.config import Config
 from app.extensions import db, DATABASE_NAME
 from app.setup_initial_data import setup_initial_data
-
+from app import workers
 
 
 
@@ -21,6 +21,13 @@ def create_app():
 
     db.init_app(app)
     
+    celery = workers.celery
+    celery.conf.update(
+        broker_url=app.config["CELERY_BROKER_URL"],
+        result_backend=app.config["CELERY_RESULT_BACKEND"],
+    )
+    celery.Task = workers.ContextTask
+    app.app_context().push()
     # print("Creating Database")
     jwt = JWTManager(app)
 
@@ -49,7 +56,6 @@ def create_app():
     setup_initial_data()
 
     
-    return app
+    return app, celery
 
-
-app = create_app()
+app, celery = create_app()
