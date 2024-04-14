@@ -28,7 +28,7 @@
           </li>
           
           <li class="nav-item">
-            <router-link class="nav-link" v-if="isLoggedIn" to="/profile">Profile</router-link>
+            <router-link class="nav-link" v-if="isLoggedIn" to="/user-profile">Profile</router-link>
           </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/search">Search</router-link>

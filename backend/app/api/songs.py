@@ -168,7 +168,22 @@ class SongResource(Resource):
         except Exception as e:
             return {'message': 'An error occurred while deleting the song'}, 500
 
+class FlaggedSongsResource(Resource):
+    @marshal_with(song_fields)
+    @jwt_required()
+    def get(self):
+        try:
+            current_user_email = get_jwt_identity()
+            current_user = User.query.filter_by(email=current_user_email).first()
 
+            # Fetch flagged songs of the current user
+            flagged_songs = Song.query.filter_by(artist_id=current_user.id, is_flagged=True).all()
+
+            return flagged_songs, 200
+        except Exception as e:
+            return {'message': 'An error occurred while fetching flagged songs'}, 500
+
+api.add_resource(FlaggedSongsResource, '/flagged-songs')
 api.add_resource(SongListResource, '/songs')
 api.add_resource(SongUploadResource, '/songs/upload')
 api.add_resource(SongResource, '/songs/<int:song_id>')

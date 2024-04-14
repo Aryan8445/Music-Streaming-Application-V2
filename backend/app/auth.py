@@ -87,6 +87,8 @@ def signup():
     expires = datetime.utcnow() + timedelta(hours=24)
     return jsonify({'message': 'User created successfully', 'access_token': access_token, 'expires_at': expires}), 201
 
+from datetime import datetime
+
 @auth.route('/user', methods=['GET'])
 @jwt_required()
 def get_user():
@@ -94,14 +96,19 @@ def get_user():
     user = User.query.filter_by(email=current_user_email, user_type='user').first()
     creator = User.query.filter_by(email=current_user_email, user_type='creator').first()
     admin = Admin.query.filter_by(email=current_user_email).first()
+
     if user:
-        return jsonify({'email': user.email, 'user_type': user.user_type}), 200
+        registration_date_str = user.registration_date.strftime('%Y-%m-%d %H:%M:%S')
+        return jsonify({'email': user.email, 'user_type': user.user_type, 'name': f"{user.firstname} {user.lastname}", 'registration_date': registration_date_str}), 200
     elif admin:
-        return jsonify({'email': admin.email, 'user_type': 'admin'}), 200
+        registration_date_str = admin.registration_date.strftime('%Y-%m-%d %H:%M:%S')
+        return jsonify({'email': admin.email, 'user_type': 'admin', 'name': admin.name, 'registration_date': registration_date_str}), 200
     elif creator:
-        return jsonify({'email': creator.email, 'user_type': creator.user_type}), 200
+        registration_date_str = creator.registration_date.strftime('%Y-%m-%d %H:%M:%S')
+        return jsonify({'email': creator.email, 'user_type': creator.user_type, 'name': f"{creator.firstname} {creator.lastname}", 'registration_date': registration_date_str}), 200
     else:
         return jsonify({'message': 'User not found'}), 404
+
 
 
 @auth.route('/protected', methods=['GET'])

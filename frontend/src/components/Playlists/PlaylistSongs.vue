@@ -5,7 +5,7 @@
 
     <div class="container mt-5">
       <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-8">
           <div class="playlist-container">
             <h2>{{ playlist.title }}</h2>
 
@@ -18,7 +18,10 @@
               <h3>Songs in Playlist</h3>
               <ul class="list-group">
                 <li v-for="song in playlist.songs" :key="song.id" class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ song.title }} - {{ song.artist }}
+                  <div>
+                    <p class="mb-0">{{ song.title }}</p>
+                    <p class="mb-0 text-muted">{{ song.artist }}</p>
+                  </div>
                   <div>
                     <router-link :to="'/play/' + song.id" class="btn btn-outline-success mx-2 btn-sm">Play Song</router-link>
                     <router-link :to="'/lyrics/' + song.id" class="btn btn-outline-info mx-2 btn-sm">Read Lyrics</router-link>
@@ -141,4 +144,27 @@ export default {
 
 <style scoped>
 /* Add custom styles if needed */
+.playlist-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
+
+input[type="text"] {
+  border-radius: 5px;
+}
+
+.list-group-item {
+  border: none;
+}
+
+.btn-sm {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .col-lg-8 {
+    max-width: 100%;
+  }
+}
 </style>

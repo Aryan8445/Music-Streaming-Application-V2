@@ -5,13 +5,13 @@
 
     <div class="container mt-5">
       <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-8">
           <div class="playlist-container">
-            <h2 class="mb-4">{{ album.title }}</h2>
+            <h2 class="mb-4 text-center">{{ album.title }}</h2>
 
             <!-- Update Album Title Section -->
             <div v-if="isCurrentUserArtist" class="mb-4">
-              <h3 class="mb-3">Update Album Title</h3>
+              <h5 class="mb-3">Update Album Title</h5>
               <div class="input-group">
                 <input v-model="newAlbumTitle" type="text" placeholder="Enter New Album Title" class="form-control">
                 <button @click="updateAlbumTitle" class="btn btn-primary">Update</button>
@@ -30,9 +30,8 @@
                   <div>
                     <router-link :to="'/play/' + song.id" class="btn btn-outline-success mx-2 btn-sm">Play Song</router-link>
                     <router-link :to="'/lyrics/' + song.id" class="btn btn-outline-info mx-2 btn-sm">Read Lyrics</router-link>
-                    <div v-if="isCurrentUserArtist">
-                      <button @click="removeSongFromAlbum(song.id)" class="btn btn-outline-danger btn-sm mx-2">Remove</button>
-                    </div>
+                    <button v-if="isCurrentUserArtist" @click="removeSongFromAlbum(song.id)" class="btn btn-outline-danger btn-sm mx-2">Remove</button>
+
                   </div>
                 </li>
               </ul>
@@ -150,5 +149,27 @@ export default {
 </script>
 
 <style scoped>
-/* Add custom styles if needed */
+.playlist-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
+
+input[type="text"] {
+  border-radius: 5px;
+}
+
+.list-group-item {
+  border: none;
+}
+
+.btn-sm {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .col-lg-8 {
+    max-width: 100%;
+  }
+}
 </style>

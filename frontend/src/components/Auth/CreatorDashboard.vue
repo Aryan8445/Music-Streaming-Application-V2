@@ -44,7 +44,7 @@
         <div class="col text-end">
           <!-- Buttons for actions -->
           <router-link to="/upload-song" class="btn btn-outline-success mx-2"><strong>Upload Song</strong></router-link>
-          <router-link to="/flagged_songs" class="btn btn-outline-warning mx-2"><strong>Flagged Songs</strong></router-link>
+          <router-link to="/flagged-songs" class="btn btn-outline-warning mx-2"><strong>Flagged Songs</strong></router-link>
         </div>
       </div>
       <!-- Table for listing songs -->

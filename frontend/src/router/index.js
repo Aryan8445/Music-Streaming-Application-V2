@@ -81,6 +81,12 @@ const routes = [
     meta: { requiresAuth: true, isCreator: true  } // Protected route, requires authentication
   },
   {
+    path: '/flagged-songs',
+    name: 'FlaggedSongs',
+    component: () => import('../components/Songs/FlaggedSongs.vue'),
+    meta: { requiresAuth: true, isCreator: true  } // Protected route, requires authentication
+  },
+  {
     path: '/admin-dashboard',
     name: 'AdminDashboard',
     component: () => import('../components/Auth/AdminDashboard.vue'), 
