@@ -33,35 +33,27 @@ class CreatorDashboardResource(Resource):
     @jwt_required()
     def get(self):
         try:
-            # Get the email of the current user from JWT identity
+
             current_user_email = get_jwt_identity()
 
-            # Find the user based on the email
             user = User.query.filter_by(email=current_user_email).first()
 
             if not user:
                 return {'message': 'User not found'}, 404
 
-            # Fetch total songs uploaded by the creator
             total_songs_uploaded = Song.query.filter_by(artist_id=user.id).count()
 
-            # Fetch total albums created by the creator
             total_albums = Album.query.filter_by(artist_id=user.id).count()
 
-            # Fetch all songs uploaded by the creator
             songs = Song.query.filter_by(artist_id=user.id).all()
 
-            # Fetch all albums created by the creator
             all_albums = Album.query.filter_by(artist_id=user.id).all()
 
-            # Fetch all ratings for the creator's songs
             all_ratings = Rating.query.join(Song).filter(Song.artist_id == user.id).all()
 
-            # Calculate total ratings and average rating
             total_ratings = sum([rating.value for rating in all_ratings])
             average_rating = round(total_ratings / len(all_ratings) if len(all_ratings) > 0 else 0, 2)
 
-            # Prepare the response data
             response_data = {
                 'artist_id': user.id,
                 'artist_firstname':user.firstname,
@@ -83,16 +75,14 @@ class AdminDashboardResource(Resource):
     @jwt_required()
     def get(self):
         try:
-            # Get the email of the current user from JWT identity
+
             current_user_email = get_jwt_identity()
 
-            # Find the user based on the email
             admin = Admin.query.filter_by(email=current_user_email).first()
 
             if not admin:
                 return {'message': 'Admin not found'}, 404
 
-            # Fetch total songs uploaded by the creator
             total_normal_users = User.query.filter_by(user_type='user').count()
             total_creators = User.query.filter_by(user_type='creator').count()
             total_songs = Song.query.count()
@@ -100,7 +90,6 @@ class AdminDashboardResource(Resource):
             total_genres = Song.query.group_by(Song.genre).count()
             top_rated_songs = (Song.query.join(Rating).group_by(Song.id).order_by(desc(func.avg(Rating.value))).limit(10).all())
 
-            # Prepare the response data
             response_data = {
                 'total_normal_user': total_normal_users,
                 'total_creators': total_creators,
@@ -119,10 +108,10 @@ class CreatorListResource(Resource):
     @jwt_required()
     def get(self):
         try:
-            # Fetch all users with user type 'creator'
+
             creators = User.query.filter_by(user_type='creator').all()
 
-            # Prepare the response data
+
             response_data = {
                 'creators': [{
                     'id': creator.id,
@@ -142,10 +131,9 @@ class UserListResource(Resource):
     @jwt_required()
     def get(self):
         try:
-            # Fetch all users with user type 'user'
+
             users = User.query.filter_by(user_type='user').all()
 
-            # Prepare the response data
             response_data = {
                 'users': [{
                     'id': user.id,

@@ -5,6 +5,7 @@ from app.models import Song, User, db, Admin,Rating
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
+from app.caching import cache
 
 
 api_bp = Blueprint('Song_api', __name__)
@@ -30,6 +31,7 @@ song_fields = {
 
 
 class SongListResource(Resource):
+    @cache.cached(timeout=600)
     @marshal_with(song_fields)
     def get(self):
         try:
@@ -84,6 +86,7 @@ class SongUploadResource(Resource):
                 current_user.user_type = 'creator'
                 db.session.add(new_song)
                 db.session.commit()
+                cache.clear()
 
                 return new_song, 201
             else:
@@ -130,6 +133,7 @@ class SongResource(Resource):
             song.lyrics = args.get('lyrics', song.lyrics)
 
             db.session.commit()
+            cache.clear()
 
             return song, 200
         except Exception as e:
@@ -152,6 +156,7 @@ class SongResource(Resource):
                 # Delete the song
                 db.session.delete(song)
                 db.session.commit()
+                cache.clear()
                 return {'message': 'Song and associated ratings deleted successfully'}, 200
 
             # Check if the current user is the artist of the song
@@ -163,6 +168,7 @@ class SongResource(Resource):
             # Delete the song
             db.session.delete(song)
             db.session.commit()
+            cache.clear()
 
             return {'message': 'Song and associated ratings deleted successfully'}, 200
         except Exception as e:

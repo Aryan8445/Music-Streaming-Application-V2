@@ -10,8 +10,10 @@ class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
     CACHE_TYPE = "RedisCache"
-    CACHE_REDIS_HOST = "localhost"
-    CACHE_REDIS_PORT = 6379
-    CACHE_REDIS_DB = 3
+    CACHE_REDIS_URL = "redis://localhost:6379/3"
+    CACHE_DEFAULT_TIMEOUT = 300
+    CACHE_KEY_PREFIX = "music_streaming_application"
+
+
 
     

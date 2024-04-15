@@ -7,9 +7,6 @@ from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
-import pandas as pd
-from io import BytesIO
-from email.mime.image import MIMEImage
 from app.models import *
 from datetime import datetime, timedelta
 from pytz import timezone

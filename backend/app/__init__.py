@@ -2,13 +2,15 @@ from os import path
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from flask_caching import Cache
 import flask_excel as excel
+
 
 
 from app.config import Config
 from app.extensions import db, DATABASE_NAME
 from app.setup_initial_data import setup_initial_data
+from app.caching import cache
+
 
 
 
@@ -29,6 +31,7 @@ def create_app():
 
     db.init_app(app)
     excel.init_excel(app)
+    cache.init_app(app)
     jwt = JWTManager(app)
 
     from .auth import auth
@@ -51,6 +54,10 @@ def create_app():
         with app.app_context():
             db.create_all()
 
+    @app.get('/api/test')
+    @cache.cached(timeout=60)
+    def test():
+        return "Hello, World!"
         
     app.app_context().push()
 
@@ -58,9 +65,11 @@ def create_app():
 
     setup_initial_data()
 
-    cache = Cache(app)
+
+
 
     return app
+
 
 
 
