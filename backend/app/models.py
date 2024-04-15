@@ -1,6 +1,8 @@
 from app.extensions import db
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from pytz import timezone
+from datetime import datetime
 
 
 class User(db.Model):
@@ -44,7 +46,7 @@ class Song(db.Model):
     album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
     file_path = db.Column(db.String(255), nullable=False)
     lyrics = db.Column(db.Text)
-    upload_date = db.Column(db.DateTime(timezone=True), default=func.now())
+    upload_date = db.Column(db.DateTime, default=datetime.now(timezone('Asia/Kolkata')))
     playlists = relationship('Playlist', secondary='playlist_songs', back_populates='songs', lazy=True)
     ratings = relationship('Rating', back_populates='song', lazy=True)
     album = db.relationship('Album',secondary='album_songs', back_populates='songs', lazy=True)
@@ -58,6 +60,7 @@ class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     title = db.Column(db.String(255), nullable=False)
+    creation_date = db.Column(db.DateTime, default=datetime.now(timezone('Asia/Kolkata')))
     songs = relationship('Song', secondary='playlist_songs', back_populates='playlists')
 
 
@@ -77,6 +80,7 @@ class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(255), nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    creation_date = db.Column(db.DateTime, default=datetime.now(timezone('Asia/Kolkata')))
     artist = db.relationship('User', back_populates='albums')
     songs = relationship('Song', secondary='album_songs',back_populates='album', lazy=True)
 
@@ -84,6 +88,7 @@ class Album(db.Model):
 class Rating(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     value = db.Column(db.Integer, nullable=False)
+    rating_date = db.Column(db.DateTime, default=datetime.now(timezone('Asia/Kolkata')))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     song_id = db.Column(db.Integer, db.ForeignKey('song.id'), nullable=False)
     user = db.relationship('User', back_populates='ratings')

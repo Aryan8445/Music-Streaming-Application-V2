@@ -3,8 +3,8 @@ from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
-from flask import request
-from celery.result import AsyncResult
+import flask_excel as excel
+
 
 from app.config import Config
 from app.extensions import db, DATABASE_NAME
@@ -28,6 +28,7 @@ def create_app():
     )
 
     db.init_app(app)
+    excel.init_excel(app)
     jwt = JWTManager(app)
 
     from .auth import auth
@@ -46,12 +47,14 @@ def create_app():
     app.register_blueprint(ratings_api_bp, url_prefix='/api')
     app.register_blueprint(search_api_bp, url_prefix='/api')
 
-
-    app.app_context().push()
-
     if not path.exists('backend/instance/' + DATABASE_NAME):
         with app.app_context():
             db.create_all()
+
+        
+    app.app_context().push()
+
+
 
     setup_initial_data()
 

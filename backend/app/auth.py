@@ -1,15 +1,21 @@
 # auth.py
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import User, Admin, db
 from datetime import datetime, timedelta
 from pytz import timezone
-
+from app.tasks import create_csv
+from celery.result import AsyncResult
+import os
+import logging
 
 
 auth = Blueprint('auth', __name__)
+
 IST = timezone('Asia/Kolkata') 
+UPLOAD_DIRECTORY = 'E:\\IIT Madras Projects\\MAD 2\\Music-Streaming-Application\\backend'
+
 
 @auth.route('/', methods=['GET'])
 def index():
@@ -135,5 +141,25 @@ def protected():
         return jsonify(logged_in_as=current_user), 200
     else:
         return jsonify({'message': 'Unauthorized'}), 401
-    
 
+
+@auth.route('/make-csv', methods=['GET'])
+def make_csv():
+    output = create_csv.delay()
+    return jsonify({'task_id': output.id, 'status': 'processing'})
+
+
+
+@auth.route('/get-csv/<task_id>', methods=['GET'])
+def get_csv(task_id):
+    res = AsyncResult(task_id)
+    if res.ready():
+        filename = res.result
+        logging.info(f"Attempting to send file: {filename}")  # Add this logging statement
+        if filename.endswith('.csv'):
+            return send_from_directory(UPLOAD_DIRECTORY, filename, as_attachment=True)
+        else:
+            logging.error(f"Invalid file extension: {filename}")  # Add this logging statement
+            return jsonify({"error": "Invalid file extension"}), 400
+    else:
+        return jsonify({"message": "Task Pending"}), 404
