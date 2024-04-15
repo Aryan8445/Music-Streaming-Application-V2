@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import User, Admin, db
 from datetime import datetime, timedelta
 from pytz import timezone
-from app.tasks import say_hello
+
 
 
 auth = Blueprint('auth', __name__)
@@ -137,7 +137,3 @@ def protected():
         return jsonify({'message': 'Unauthorized'}), 401
     
 
-@auth.route('/hello')
-def hello():
-    res = say_hello.delay()
-    return jsonify({'taskid': res.id})

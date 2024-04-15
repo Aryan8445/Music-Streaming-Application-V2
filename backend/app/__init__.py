@@ -2,34 +2,32 @@ from os import path
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-
+from flask_caching import Cache
+from flask import request
+from celery.result import AsyncResult
 
 from app.config import Config
 from app.extensions import db, DATABASE_NAME
 from app.setup_initial_data import setup_initial_data
-from app import workers
+from app.tasks import add_together
+
 
 
 def create_app():
     app = Flask(__name__)
     CORS(app)
-    app.app_context().push()
     app.config.from_object(Config)
-
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_NAME}'
+    app.config.from_mapping(
+    CELERY=dict(
+        broker_url="redis://localhost:6379/1",
+        result_backend="redis://localhost:6379/2",
+        timezone = "Asia/kolkata",
+        broker_connection_retry_on_startup=True,
+    ),
+    )
 
     db.init_app(app)
-
-    celery = workers.celery
-    celery.conf.update(
-        broker_url = "redis://localhost:6379/1",
-result_backend = "redis://localhost:6379/2",
-        timezone="Asia/kolkata",
-        broker_connection_retry_on_startup=True,
-    )
-    celery.Task = workers.ContextTask
-
-    # print("Creating Database")
     jwt = JWTManager(app)
 
     from .auth import auth
@@ -48,15 +46,33 @@ result_backend = "redis://localhost:6379/2",
     app.register_blueprint(ratings_api_bp, url_prefix='/api')
     app.register_blueprint(search_api_bp, url_prefix='/api')
 
+
+
+    @app.get("/add")
+    def start_add():
+        result = add_together.delay()
+        return {"result_id": result.id}
+    
+    @app.get("/result/<id>")
+    def task_result(id: str) -> dict[str, object]:
+        result = AsyncResult(id)
+        return {
+            "ready": result.ready(),
+            "successful": result.successful(),
+            "value": result.result if result.ready() else None,
+        }
+
     app.app_context().push()
 
-    if not path.exists('instance/' + DATABASE_NAME):
+    if not path.exists('backend/instance/' + DATABASE_NAME):
         with app.app_context():
             db.create_all()
 
     setup_initial_data()
 
-    return app, celery
+    cache = Cache(app)
+
+    return app
 
 
-app, celery = create_app()
+
