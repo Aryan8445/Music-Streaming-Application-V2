@@ -9,7 +9,7 @@ from celery.result import AsyncResult
 from app.config import Config
 from app.extensions import db, DATABASE_NAME
 from app.setup_initial_data import setup_initial_data
-from app.tasks import add_together
+
 
 
 
@@ -46,21 +46,6 @@ def create_app():
     app.register_blueprint(ratings_api_bp, url_prefix='/api')
     app.register_blueprint(search_api_bp, url_prefix='/api')
 
-
-
-    @app.get("/add")
-    def start_add():
-        result = add_together.delay()
-        return {"result_id": result.id}
-    
-    @app.get("/result/<id>")
-    def task_result(id: str) -> dict[str, object]:
-        result = AsyncResult(id)
-        return {
-            "ready": result.ready(),
-            "successful": result.successful(),
-            "value": result.result if result.ready() else None,
-        }
 
     app.app_context().push()
 
