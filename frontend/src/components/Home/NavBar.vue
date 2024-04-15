@@ -26,10 +26,6 @@
           <li class="nav-item">
             <router-link class="nav-link" v-if="isLoggedIn && userType === 'admin'" to="/all-creators">Creators</router-link>
           </li>
-          
-          <li class="nav-item">
-            <router-link class="nav-link" v-if="isLoggedIn" to="/user-profile">Profile</router-link>
-          </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/search">Search</router-link>
           </li>

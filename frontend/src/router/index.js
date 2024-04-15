@@ -34,12 +34,6 @@ const routes = [
     component: () => import('../components/Home/SearchResults.vue'),
   },
   {
-    path: '/user-profile',
-    name: 'UserProfile',
-    component: () => import('../components/Auth/UserProfile.vue'),
-    meta: { requiresAuth: true } // Protected route, requires authentication
-  },
-  {
     path: '/upload-song',
     name: 'UploadSong',
     component: () => import('../components/Songs/UploadSong.vue'),
