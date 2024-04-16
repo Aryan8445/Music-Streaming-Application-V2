@@ -1,6 +1,6 @@
 # auth.py
 from datetime import datetime
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import Blueprint, jsonify, request, send_from_directory, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import User, Admin, db
@@ -9,7 +9,9 @@ from pytz import timezone
 from app.tasks import create_csv
 from celery.result import AsyncResult
 import logging
-
+import matplotlib.pyplot as plt
+from app.models import User, Song
+import os
 
 
 auth = Blueprint('auth', __name__)
@@ -164,3 +166,45 @@ def get_csv(task_id):
     else:
         return jsonify({"message": "Task Pending"}), 404
 
+@auth.route('/api/generate_top_genre_graph', methods=['GET'])
+def generate_top_genre_graph():
+    # Generate Top Genre Graph
+    top_genre_data = db.session.query(Song.genre, db.func.count(Song.id)).group_by(Song.genre).all()
+    genres = [data[0] for data in top_genre_data]
+    counts = [data[1] for data in top_genre_data]
+
+    plt.figure(figsize=(8, 6))
+    plt.bar(genres, counts)
+    plt.xlabel('Genre')
+    plt.ylabel('Count')
+    plt.title('Top Genre')
+
+    # Construct the file path using os.path.join
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
+    image_path = os.path.join(base_path, 'static', 'analytics', 'top_genre.png')
+
+    plt.savefig(image_path)
+    plt.close()
+
+    return send_file(image_path, mimetype='image/png')
+
+@auth.route('/api/generate_user_vs_creator_graph', methods=['GET'])
+def generate_user_vs_creator_graph():
+    # Generate User vs Creator Pie Chart
+    user_count = User.query.filter_by(user_type='user').count()
+    creator_count = User.query.filter_by(user_type='creator').count()
+
+    plt.figure(figsize=(8, 6))
+    labels = ['User', 'Creator']
+    sizes = [user_count, creator_count]
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%')
+    plt.title('User vs Creator')
+
+    # Construct the file path using os.path.join
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
+    image_path = os.path.join(base_path, 'static', 'analytics', 'user_vs_creator.png')
+
+    plt.savefig(image_path)
+    plt.close()
+
+    return send_file(image_path, mimetype='image/png')
