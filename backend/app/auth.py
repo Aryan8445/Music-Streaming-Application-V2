@@ -9,7 +9,7 @@ from pytz import timezone
 from app.tasks import create_csv
 from celery.result import AsyncResult
 import logging
-from app.caching import cache
+
 
 
 auth = Blueprint('auth', __name__)
@@ -164,9 +164,3 @@ def get_csv(task_id):
     else:
         return jsonify({"message": "Task Pending"}), 404
 
-
-
-@auth.route('/api/test')
-@cache.cached(timeout=60)
-def test():
-    return "Hello, World!"

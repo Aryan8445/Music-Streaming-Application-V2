@@ -1,7 +1,7 @@
 <template>
   <div class="col mb-4"> <!-- Adjust the column width -->
     <div class="card h-100 shadow-sm playlist-card">
-      <img :src="playlist.imageUrl || require('@/assets/img/playlist.jpg')" class="card-img-top playlist-image" alt="Playlist Image"> <!-- Use different image -->
+      <img :src="playlist.imageUrl || require('@/assets/img/playlist.webp')" class="card-img-top playlist-image" alt="Playlist Image"> <!-- Use different image -->
       <div class="card-body">
         <h5 class="card-title text-center text-dark">{{ playlist.title }}</h5>
         <div class="d-flex justify-content-center">

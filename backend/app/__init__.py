@@ -54,10 +54,7 @@ def create_app():
         with app.app_context():
             db.create_all()
 
-    @app.get('/api/test')
-    @cache.cached(timeout=60)
-    def test():
-        return "Hello, World!"
+
         
     app.app_context().push()
 

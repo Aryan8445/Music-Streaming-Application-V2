@@ -1,7 +1,7 @@
 <template>
   <div class="col mb-4"> <!-- Adjust the column width -->
     <div class="card h-100 shadow-sm album-card">
-      <img :src="album.imageUrl || require('@/assets/img/album.jpg')" class="card-img-top album-image" alt="Album Image">
+      <img :src="album.imageUrl || require('@/assets/img/album.webp')" class="card-img-top album-image" alt="Album Image">
       <div class="card-body">
         <h5 class="card-title text-center text-dark">{{ album.title }}</h5>
         <p class="card-text text-center text-muted">Artist: {{ album.artist }}</p>
