@@ -1,6 +1,6 @@
 # auth.py
 from datetime import datetime
-from flask import Blueprint, jsonify, request, send_from_directory, send_file
+from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import User, Admin, db
@@ -8,10 +8,7 @@ from datetime import datetime, timedelta
 from pytz import timezone
 from app.tasks import create_csv
 from celery.result import AsyncResult
-import logging
-import matplotlib.pyplot as plt
-from app.models import User, Song
-import os
+
 
 
 auth = Blueprint('auth', __name__)
@@ -157,11 +154,9 @@ def get_csv(task_id):
     res = AsyncResult(task_id)
     if res.ready():
         filename = res.result
-        logging.info(f"Attempting to send file: {filename}")
         if filename.endswith('.csv'):
             return send_from_directory(UPLOAD_DIRECTORY, filename, as_attachment=True)
         else:
-            logging.error(f"Invalid file extension: {filename}")
             return jsonify({"error": "Invalid file extension"}), 400
     else:
         return jsonify({"message": "Task Pending"}), 404
