@@ -6,7 +6,7 @@
     <div class="container mt-5">
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <div class="playlist-container">
+          <div class="album-container">
             <h2 class="mb-4 text-center">{{ album.title }}</h2>
 
             <!-- Update Album Title Section -->
@@ -149,7 +149,7 @@ export default {
 </script>
 
 <style scoped>
-.playlist-container {
+.album-container {
   padding: 20px;
   background-color: #f8f9fa;
   border-radius: 10px;
@@ -161,6 +161,10 @@ input[type="text"] {
 
 .list-group-item {
   border: none;
+}
+.btn{
+  border-radius: 20px;
+
 }
 
 .btn-sm {

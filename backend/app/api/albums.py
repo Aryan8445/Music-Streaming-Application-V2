@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 from app.models import Album, User, Song, db, Admin
 from functools import wraps
+from app.caching import cache
 
 api_bp = Blueprint('Album_api', __name__)
 api = Api(api_bp)
@@ -182,6 +183,8 @@ class AlbumAddSongResource(Resource):
 
             album.songs.append(song)
             db.session.commit()
+            cache.clear()
+
 
             return album, 200
         except SQLAlchemyError:

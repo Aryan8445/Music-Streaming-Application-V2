@@ -1,3 +1,5 @@
 firstname,lastname,email,is_blacklisted
 User,Test,testuser@gmail.com,False
 Creator,Test,testcreator@gmail.com,False
+Creator,2,testcreator2@gmail.com,False
+User,Creator,testusertocreator@gmail.com,False

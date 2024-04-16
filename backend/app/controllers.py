@@ -5,7 +5,7 @@ from app.models import Song, Rating, User, Album, Admin, db
 from sqlalchemy import desc, func
 import matplotlib.pyplot as plt
 import io
-
+from app.caching import cache
 
 controllers = Blueprint('controllers',__name__)
 api = Api(controllers)
@@ -240,6 +240,8 @@ class FlagSongResource(Resource):
             # Flag the song
             song.is_flagged = True
             db.session.commit()
+            cache.clear()
+
 
             return {'message': 'Song flagged successfully'}, 200
 

@@ -10,22 +10,29 @@
             <h2>{{ playlist.title }}</h2>
 
             <div class="mb-3">
-              <input v-model="newPlaylistName" type="text" placeholder="New Playlist Name" class="form-control">
-              <button @click="updatePlaylistName" class="btn btn-primary mt-2">Update Playlist Name</button>
+              <div class="input-group">
+                <input v-model="newPlaylistName" type="text" placeholder="New Playlist Name" class="form-control">
+                <button @click="updatePlaylistName" class="btn btn-primary ">Update Playlist Name</button>
+              </div>
+
             </div>
 
             <div>
               <h3>Songs in Playlist</h3>
               <ul class="list-group">
-                <li v-for="song in playlist.songs" :key="song.id" class="list-group-item d-flex justify-content-between align-items-center">
+                <li v-for="song in playlist.songs" :key="song.id"
+                  class="list-group-item d-flex justify-content-between align-items-center">
                   <div>
                     <p class="mb-0">{{ song.title }}</p>
                     <p class="mb-0 text-muted">{{ song.artist }}</p>
                   </div>
                   <div>
-                    <router-link :to="'/play/' + song.id" class="btn btn-outline-success mx-2 btn-sm">Play Song</router-link>
-                    <router-link :to="'/lyrics/' + song.id" class="btn btn-outline-info mx-2 btn-sm">Read Lyrics</router-link>
-                    <button @click="removeSongFromPlaylist(song.id)" class="btn btn-outline-danger btn-sm mx-2">Remove</button>
+                    <router-link :to="'/play/' + song.id" class="btn btn-outline-success mx-2 btn-sm">Play
+                      Song</router-link>
+                    <router-link :to="'/lyrics/' + song.id" class="btn btn-outline-info mx-2 btn-sm">Read
+                      Lyrics</router-link>
+                    <button @click="removeSongFromPlaylist(song.id)"
+                      class="btn btn-outline-danger btn-sm mx-2">Remove</button>
                   </div>
                 </li>
               </ul>
@@ -33,10 +40,14 @@
 
             <div class="mt-4">
               <h3>Add Songs to Playlist</h3>
-              <select v-model="selectedSong" class="form-select">
-                <option v-for="song in allSongs" :key="song.id" :value="song.id">{{ song.title }} - {{ song.artist }}</option>
-              </select>
-              <button @click="addSongToPlaylist" class="btn btn-primary mt-2">Add Song to Playlist</button>
+              <div class="input-group">
+                <select v-model="selectedSong" class="form-select">
+                  <option v-for="song in allSongs" :key="song.id" :value="song.id">{{ song.title }} - {{ song.artist }}
+                  </option>
+                </select>
+                <button @click="addSongToPlaylist" class="btn btn-primary ">Add Song to Playlist</button>
+
+              </div>
             </div>
           </div>
         </div>
@@ -156,6 +167,11 @@ input[type="text"] {
 
 .list-group-item {
   border: none;
+}
+
+.btn {
+  border-radius: 20px;
+
 }
 
 .btn-sm {
