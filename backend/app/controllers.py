@@ -274,7 +274,7 @@ class FlagSongResource(Resource):
             # Unflag the song
             song.is_flagged = False
             db.session.commit()
-
+            cache.clear()
             return {'message': 'Song unflagged successfully'}, 200
 
         except Exception as e:
