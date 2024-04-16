@@ -12,7 +12,7 @@
         <router-link to="/all-songs" class="btn btn-info mx-2">All Songs</router-link>
         <router-link to="/all-users" class="btn btn-success mx-2">All Users</router-link>
         <router-link to="/all-creators" class="btn btn-warning mx-2">All Creators</router-link>
-        <button class="btn btn-primary mx-2" @click='downlodResource'>Download Resource</button><span v-if='isWaiting'> Waiting... </span>
+        <button class="btn btn-primary mx-2" @click='downlodResource'>Download Users</button><span v-if='isWaiting'> Waiting... </span>
       </div>
     </div>
 
