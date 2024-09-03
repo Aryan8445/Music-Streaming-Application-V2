@@ -38,4 +38,5 @@ This upgraded version adopts a client-server architecture, utilizing Vue.js for 
 - **Monthly Activity Reports**: Automated generation and distribution of detailed progress reports for creators, enhancing insights into content performance.
 
 This version brings a significant upgrade over the previous iteration, offering more functionality, better performance, and an improved user experience.
+To view the previous version of this project, visit the [Music Streaming Application V1 repository](https://github.com/Aryan8445/Music-Streaming-Application-V1.git).
 
